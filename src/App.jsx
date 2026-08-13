@@ -26,6 +26,16 @@ function App() {
     <>
       {!user && <SignupModal onComplete={setUser} />}
       <header className="hero">
+        <div style={{ position: 'absolute', top: 20, right: 20 }}>
+          {user ? (
+            <div className="flex-row" style={{ alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: '14px' }}>Welcome, {user.name}</span>
+              <Button variant="secondary" onClick={() => { localStorage.removeItem('satyam_user'); setUser(null); }} style={{ padding: '6px 12px', fontSize: '12px' }}>Sign Out</Button>
+            </div>
+          ) : (
+            <Button variant="secondary" onClick={() => setUser(null)} style={{ padding: '6px 12px', fontSize: '12px' }}>Sign Up</Button>
+          )}
+        </div>
         <h1>{config.hotel.name}</h1>
         <p>{config.hotel.tagline}</p>
       </header>
@@ -46,6 +56,10 @@ function App() {
               onBook={setSelectedRoom} 
             />
           ))}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '32px' }}>
+          <Button onClick={() => setSelectedRoom(config.roomTypes[0])}>Next →</Button>
         </div>
 
         <div className="testimonial">

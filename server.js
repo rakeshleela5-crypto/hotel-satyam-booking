@@ -87,4 +87,31 @@ app.post('/api/joinWaitlist', async (c) => {
   }
 });
 
+app.post('/api/signup', async (c) => {
+  const db = c.env.DB;
+  const payload = await c.req.json();
+  const { name, email, phone } = payload;
+
+  if (!db) {
+    console.warn("D1 database not bound. Using mock response.");
+    return c.json({ success: true, mock: true });
+  }
+
+  try {
+    const existingUser = await db.prepare('SELECT user_id FROM users WHERE email = ? OR phone = ?').bind(email, phone).first();
+    if (existingUser) {
+      return c.json({ success: true, userId: existingUser.user_id, message: "User already exists, logged in!" });
+    }
+
+    const userId = `U-${Math.floor(1000 + Math.random() * 9000)}`;
+    await db.prepare('INSERT INTO users (user_id, full_name, email, phone, role) VALUES (?, ?, ?, ?, ?)')
+      .bind(userId, name, email, phone, 'guest').run();
+
+    return c.json({ success: true, userId });
+  } catch (error) {
+    console.error("Signup error:", error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
 export default app;

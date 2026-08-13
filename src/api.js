@@ -31,3 +31,18 @@ export async function joinWaitlist(payload) {
   
   return response.json();
 }
+
+export async function signupUser(payload) {
+  const response = await fetch('/api/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to signup');
+  }
+  
+  return response.json();
+}

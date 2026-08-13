@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { config } from '../config';
+import { signupUser } from '../api';
 
 export function SignupModal({ onComplete }) {
   const [formData, setFormData] = useState({
@@ -9,18 +10,22 @@ export function SignupModal({ onComplete }) {
   });
   
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     
-    // Simulate API call for sign up
-    setTimeout(() => {
+    try {
+      const res = await signupUser(formData);
       // Save user details to localStorage
-      localStorage.setItem('satyam_user', JSON.stringify(formData));
-      setLoading(false);
-      onComplete(formData);
-    }, 1000);
+      localStorage.setItem('satyam_user', JSON.stringify({ ...formData, userId: res.userId }));
+      onComplete({ ...formData, userId: res.userId });
+    } catch (err) {
+      setError(err.message);
+    }
+    setLoading(false);
   };
 
   const handleChange = (e) => {
@@ -74,6 +79,8 @@ export function SignupModal({ onComplete }) {
               required
             />
           </div>
+
+          {error && <div style={{ color: 'red', fontSize: '14px', marginBottom: '16px' }}>{error}</div>}
 
           <button type="submit" className="btn btn-primary" style={{ marginTop: '24px' }} disabled={loading}>
             {loading ? <div className="spinner"></div> : null}

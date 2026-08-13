@@ -13,10 +13,20 @@ export function BookingModal({ room, onClose }) {
   const [guests, setGuests] = useState('1');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [dateError, setDateError] = useState('');
 
   // Validate dates
   const nights = calculateNights(checkIn, checkOut);
   const isDateValid = checkIn && checkOut && new Date(checkIn) < new Date(checkOut) && !isPastDate(checkIn);
+  
+  const handleContinueToDetails = () => {
+    setDateError('');
+    if (!checkIn) return setDateError('Please select a check-in date.');
+    if (!checkOut) return setDateError('Please select a check-out date.');
+    if (isPastDate(checkIn)) return setDateError('Check-in date cannot be in the past.');
+    if (new Date(checkIn) >= new Date(checkOut)) return setDateError('Check-out date must be after check-in date.');
+    setStep(2);
+  };
 
   const handleGuestSubmit = (e) => {
     e.preventDefault();
@@ -104,7 +114,9 @@ export function BookingModal({ room, onClose }) {
               </div>
             )}
             
-            <Button disabled={!isDateValid} onClick={() => setStep(2)}>Continue to Details</Button>
+            {dateError && <div style={{ color: 'red', fontSize: '14px', textAlign: 'center' }}>{dateError}</div>}
+            
+            <Button onClick={handleContinueToDetails}>Continue to Details</Button>
           </div>
         )}
 

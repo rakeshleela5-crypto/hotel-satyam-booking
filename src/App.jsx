@@ -11,7 +11,6 @@ function App() {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [user, setUser] = useState(null);
   const [isInitializing, setIsInitializing] = useState(true);
-  const [showPaymentPage, setShowPaymentPage] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('satyam_user');
@@ -31,37 +30,29 @@ function App() {
         <p>{config.hotel.tagline}</p>
       </header>
       
-      {showPaymentPage ? (
-        <PaymentPage onBack={() => setShowPaymentPage(false)} />
-      ) : (
-        <main className="container">
-          <div className="text-center mb-6">
-            <p style={{ color: 'var(--primary-color)', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '12px', marginBottom: '8px' }}>
-              Book Your Stay
-            </p>
-            <h2 className="serif">Our Accommodations</h2>
-          </div>
-          
-          <div className="flex-column">
-            {config.roomTypes.map(room => (
-              <RoomCard 
-                key={room.id} 
-                room={room} 
-                onBook={setSelectedRoom} 
-              />
-            ))}
-          </div>
+      <main className="container">
+        <div className="text-center mb-6">
+          <p style={{ color: 'var(--primary-color)', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '12px', marginBottom: '8px' }}>
+            Book Your Stay
+          </p>
+          <h2 className="serif">Our Accommodations</h2>
+        </div>
+        
+        <div className="flex-column">
+          {config.roomTypes.map(room => (
+            <RoomCard 
+              key={room.id} 
+              room={room} 
+              onBook={setSelectedRoom} 
+            />
+          ))}
+        </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px', marginBottom: '32px' }}>
-            <Button onClick={() => setShowPaymentPage(true)}>Next →</Button>
-          </div>
-
-          <div className="testimonial">
-            "{config.testimonial.text}"
-            <span className="testimonial-author">{config.testimonial.author}</span>
-          </div>
-        </main>
-      )}
+        <div className="testimonial">
+          "{config.testimonial.text}"
+          <span className="testimonial-author">{config.testimonial.author}</span>
+        </div>
+      </main>
 
       <footer className="footer">
         <h3 className="serif mb-4">{config.hotel.name}</h3>

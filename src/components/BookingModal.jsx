@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from './Button';
 import { isPastDate, formatIndianDate, calculateNights } from '../utils/dates';
 import { bookRoom, joinWaitlist } from '../api';
+import { PaymentPage } from './PaymentPage';
 
 export function BookingModal({ room, onClose }) {
   const [step, setStep] = useState(1);
@@ -17,11 +18,15 @@ export function BookingModal({ room, onClose }) {
   const nights = calculateNights(checkIn, checkOut);
   const isDateValid = checkIn && checkOut && new Date(checkIn) < new Date(checkOut) && !isPastDate(checkIn);
 
-  const handleBook = async (e) => {
+  const handleGuestSubmit = (e) => {
     e.preventDefault();
+    setStep(3);
+  };
+
+  const handleBook = async (paymentMethod) => {
     setLoading(true);
     try {
-      const res = await bookRoom({ roomType: room.id, checkIn, checkOut, name, phone, guests });
+      const res = await bookRoom({ roomType: room.id, checkIn, checkOut, name, phone, guests, paymentMethod });
       setResult({ type: 'success', message: `Booking Confirmed! ID: ${res.bookingId}` });
     } catch (err) {
       setResult({ type: 'error', message: 'Failed to book room.' });
@@ -48,6 +53,21 @@ export function BookingModal({ room, onClose }) {
           <div style={{ fontSize: 48, marginBottom: 16 }}>{result.type === 'success' ? '✅' : '❌'}</div>
           <h2>{result.message}</h2>
           <Button className="mt-4" onClick={onClose}>Close</Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 3) {
+    return (
+      <div className="modal-overlay" style={{ zIndex: 1000, overflowY: 'auto' }}>
+        <div style={{ background: '#fff', minHeight: '100vh', width: '100%', position: 'absolute', top: 0, left: 0 }}>
+          <PaymentPage 
+            amount={room.price * nights} 
+            loading={loading} 
+            onBack={() => setStep(2)} 
+            onPay={handleBook} 
+          />
         </div>
       </div>
     );
@@ -89,7 +109,7 @@ export function BookingModal({ room, onClose }) {
         )}
 
         {step === 2 && (
-          <form onSubmit={handleBook} className="flex-column gap-4">
+          <form onSubmit={handleGuestSubmit} className="flex-column gap-4">
             <div className="form-group">
               <label className="form-label">Full Name</label>
               <input required type="text" className="form-input" placeholder="Enter your name" value={name} onChange={e => setName(e.target.value)} />
@@ -111,7 +131,7 @@ export function BookingModal({ room, onClose }) {
             </div>
             
             <div className="flex-column gap-2 mt-4">
-              <Button type="submit" loading={loading}>Confirm Booking (₹{room.price * nights})</Button>
+              <Button type="submit">Proceed to Payment</Button>
               <Button type="button" variant="secondary" loading={loading} onClick={handleWaitlist}>Join Waitlist Instead</Button>
               <Button type="button" variant="secondary" onClick={() => setStep(1)} style={{ background: 'transparent' }}>Back</Button>
             </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from './Button';
 
-export function PaymentPage({ onBack }) {
+export function PaymentPage({ onBack, onPay, loading, amount }) {
   const [selectedMethod, setSelectedMethod] = useState(null);
 
   const paymentMethods = [
@@ -95,7 +95,9 @@ export function PaymentPage({ onBack }) {
             
             {selectedMethod === method.id && (
               <div style={{ marginTop: '16px', textAlign: 'right' }}>
-                <Button>Proceed to Pay</Button>
+                <Button onClick={() => onPay(method.id)} loading={loading}>
+                  Pay ₹{amount} & Confirm
+                </Button>
               </div>
             )}
           </div>

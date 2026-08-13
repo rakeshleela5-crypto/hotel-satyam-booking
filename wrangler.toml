@@ -8,7 +8,7 @@ directory = "dist"
 # TO CONNECT YOUR DATABASE:
 # 1. Create a D1 database in the Cloudflare Dashboard
 # 2. Uncomment the three lines below and paste your new database_id
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "hotel-satyam-booking-db"
-# database_id = "00000000-0000-0000-0000-000000000000"
+[[d1_databases]]
+binding = "DB"
+database_name = "hotel-satyam-booking-db"
+database_id = "5a00c6dc-70e4-426d-b0e4-de4ccd1137f3"

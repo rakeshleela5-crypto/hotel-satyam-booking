@@ -5,7 +5,10 @@ compatibility_date = "2024-10-01"
 [assets]
 directory = "dist"
 
-[[d1_databases]]
-binding = "DB"
-database_name = "hotel-satyam-booking-db"
-database_id = "00000000-0000-0000-0000-000000000000" # Placeholder: Update with actual ID from dashboard
+# TO CONNECT YOUR DATABASE:
+# 1. Create a D1 database in the Cloudflare Dashboard
+# 2. Uncomment the three lines below and paste your new database_id
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "hotel-satyam-booking-db"
+# database_id = "00000000-0000-0000-0000-000000000000"

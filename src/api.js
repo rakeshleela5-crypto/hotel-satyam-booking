@@ -3,24 +3,31 @@
 // return fetch(`${BASE_URL}/availability?...`).then(r => r.json());
 
 export async function bookRoom(payload) {
-  // payload: { roomType, checkIn, checkOut, name, phone, guests }
-  // Returns: { success: true, bookingId: "HS-12345" }
+  const response = await fetch('/api/bookRoom', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
   
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to book room');
+  }
   
-  return { 
-    success: true, 
-    bookingId: `HS-${Math.floor(10000 + Math.random() * 90000)}` 
-  };
+  return response.json();
 }
 
 export async function joinWaitlist(payload) {
-  // payload: { roomType, preferredDates, name, phone }
-  // Returns: { success: true }
+  const response = await fetch('/api/joinWaitlist', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
   
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to join waitlist');
+  }
   
-  return { success: true };
+  return response.json();
 }

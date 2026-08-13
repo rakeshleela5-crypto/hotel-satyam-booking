@@ -1,0 +1,11 @@
+name = "hotel-satyam-booking"
+main = "server.js"
+compatibility_date = "2024-10-01"
+
+[assets]
+directory = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hotel-satyam-booking-db"
+database_id = "00000000-0000-0000-0000-000000000000" # Placeholder: Update with actual ID from dashboard

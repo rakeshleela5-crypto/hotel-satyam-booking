@@ -1,0 +1,232 @@
+-- =============================================
+-- MIGRATION: Scale Hotel to 200 Rooms (3 Categories)
+-- =============================================
+
+-- Step 1: Clean up dependent tables first (FK order matters)
+DELETE FROM booking_events;
+DELETE FROM payments;
+DELETE FROM bookings;
+DELETE FROM waitlist;
+DELETE FROM rooms WHERE hotel_id = 'H-001';
+
+-- Step 2: Ensure Executive Suite room type exists
+INSERT OR IGNORE INTO room_types (room_type_id, hotel_id, room_type_name, max_adults, max_children, base_price, amenities)
+VALUES ('RT-EXE', 'H-001', 'Business Suite', 2, 1, 4999.00, 'Free WiFi, AC, Smart TV, Mini Fridge, Bathtub, Lounge Access, Breakfast Included');
+
+-- Step 3: Update prices
+UPDATE room_types SET base_price = 1499.00 WHERE room_type_id = 'RT-STD';
+UPDATE room_types SET base_price = 2499.00 WHERE room_type_id = 'RT-DLX';
+UPDATE room_types SET base_price = 4999.00 WHERE room_type_id = 'RT-EXE';
+UPDATE room_types SET base_price = 4999.00 WHERE room_type_id = 'RT-BSN';
+
+-- =============================================
+-- STANDARD ROOMS: 100 rooms (Floors 1-4, 25 per floor)
+-- =============================================
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S101','H-001','RT-STD','101',1,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S102','H-001','RT-STD','102',1,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S103','H-001','RT-STD','103',1,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S104','H-001','RT-STD','104',1,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S105','H-001','RT-STD','105',1,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S106','H-001','RT-STD','106',1,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S107','H-001','RT-STD','107',1,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S108','H-001','RT-STD','108',1,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S109','H-001','RT-STD','109',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S110','H-001','RT-STD','110',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S111','H-001','RT-STD','111',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S112','H-001','RT-STD','112',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S113','H-001','RT-STD','113',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S114','H-001','RT-STD','114',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S115','H-001','RT-STD','115',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S116','H-001','RT-STD','116',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S117','H-001','RT-STD','117',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S118','H-001','RT-STD','118',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S119','H-001','RT-STD','119',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S120','H-001','RT-STD','120',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S121','H-001','RT-STD','121',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S122','H-001','RT-STD','122',1,'maintenance');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S123','H-001','RT-STD','123',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S124','H-001','RT-STD','124',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S125','H-001','RT-STD','125',1,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S201','H-001','RT-STD','201',2,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S202','H-001','RT-STD','202',2,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S203','H-001','RT-STD','203',2,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S204','H-001','RT-STD','204',2,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S205','H-001','RT-STD','205',2,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S206','H-001','RT-STD','206',2,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S207','H-001','RT-STD','207',2,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S208','H-001','RT-STD','208',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S209','H-001','RT-STD','209',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S210','H-001','RT-STD','210',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S211','H-001','RT-STD','211',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S212','H-001','RT-STD','212',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S213','H-001','RT-STD','213',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S214','H-001','RT-STD','214',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S215','H-001','RT-STD','215',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S216','H-001','RT-STD','216',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S217','H-001','RT-STD','217',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S218','H-001','RT-STD','218',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S219','H-001','RT-STD','219',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S220','H-001','RT-STD','220',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S221','H-001','RT-STD','221',2,'maintenance');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S222','H-001','RT-STD','222',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S223','H-001','RT-STD','223',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S224','H-001','RT-STD','224',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S225','H-001','RT-STD','225',2,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S301','H-001','RT-STD','301',3,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S302','H-001','RT-STD','302',3,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S303','H-001','RT-STD','303',3,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S304','H-001','RT-STD','304',3,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S305','H-001','RT-STD','305',3,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S306','H-001','RT-STD','306',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S307','H-001','RT-STD','307',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S308','H-001','RT-STD','308',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S309','H-001','RT-STD','309',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S310','H-001','RT-STD','310',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S311','H-001','RT-STD','311',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S312','H-001','RT-STD','312',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S313','H-001','RT-STD','313',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S314','H-001','RT-STD','314',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S315','H-001','RT-STD','315',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S316','H-001','RT-STD','316',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S317','H-001','RT-STD','317',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S318','H-001','RT-STD','318',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S319','H-001','RT-STD','319',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S320','H-001','RT-STD','320',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S321','H-001','RT-STD','321',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S322','H-001','RT-STD','322',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S323','H-001','RT-STD','323',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S324','H-001','RT-STD','324',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S325','H-001','RT-STD','325',3,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S401','H-001','RT-STD','401',4,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S402','H-001','RT-STD','402',4,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S403','H-001','RT-STD','403',4,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S404','H-001','RT-STD','404',4,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S405','H-001','RT-STD','405',4,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S406','H-001','RT-STD','406',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S407','H-001','RT-STD','407',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S408','H-001','RT-STD','408',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S409','H-001','RT-STD','409',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S410','H-001','RT-STD','410',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S411','H-001','RT-STD','411',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S412','H-001','RT-STD','412',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S413','H-001','RT-STD','413',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S414','H-001','RT-STD','414',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S415','H-001','RT-STD','415',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S416','H-001','RT-STD','416',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S417','H-001','RT-STD','417',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S418','H-001','RT-STD','418',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S419','H-001','RT-STD','419',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S420','H-001','RT-STD','420',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S421','H-001','RT-STD','421',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S422','H-001','RT-STD','422',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S423','H-001','RT-STD','423',4,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S424','H-001','RT-STD','424',4,'maintenance');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-S425','H-001','RT-STD','425',4,'available');
+
+-- =============================================
+-- DELUXE ROOMS: 60 rooms (Floors 5-6, 30 per floor)
+-- =============================================
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D501','H-001','RT-DLX','501',5,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D502','H-001','RT-DLX','502',5,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D503','H-001','RT-DLX','503',5,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D504','H-001','RT-DLX','504',5,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D505','H-001','RT-DLX','505',5,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D506','H-001','RT-DLX','506',5,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D507','H-001','RT-DLX','507',5,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D508','H-001','RT-DLX','508',5,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D509','H-001','RT-DLX','509',5,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D510','H-001','RT-DLX','510',5,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D511','H-001','RT-DLX','511',5,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D512','H-001','RT-DLX','512',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D513','H-001','RT-DLX','513',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D514','H-001','RT-DLX','514',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D515','H-001','RT-DLX','515',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D516','H-001','RT-DLX','516',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D517','H-001','RT-DLX','517',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D518','H-001','RT-DLX','518',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D519','H-001','RT-DLX','519',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D520','H-001','RT-DLX','520',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D521','H-001','RT-DLX','521',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D522','H-001','RT-DLX','522',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D523','H-001','RT-DLX','523',5,'maintenance');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D524','H-001','RT-DLX','524',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D525','H-001','RT-DLX','525',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D526','H-001','RT-DLX','526',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D527','H-001','RT-DLX','527',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D528','H-001','RT-DLX','528',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D529','H-001','RT-DLX','529',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D530','H-001','RT-DLX','530',5,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D601','H-001','RT-DLX','601',6,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D602','H-001','RT-DLX','602',6,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D603','H-001','RT-DLX','603',6,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D604','H-001','RT-DLX','604',6,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D605','H-001','RT-DLX','605',6,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D606','H-001','RT-DLX','606',6,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D607','H-001','RT-DLX','607',6,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D608','H-001','RT-DLX','608',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D609','H-001','RT-DLX','609',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D610','H-001','RT-DLX','610',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D611','H-001','RT-DLX','611',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D612','H-001','RT-DLX','612',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D613','H-001','RT-DLX','613',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D614','H-001','RT-DLX','614',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D615','H-001','RT-DLX','615',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D616','H-001','RT-DLX','616',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D617','H-001','RT-DLX','617',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D618','H-001','RT-DLX','618',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D619','H-001','RT-DLX','619',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D620','H-001','RT-DLX','620',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D621','H-001','RT-DLX','621',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D622','H-001','RT-DLX','622',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D623','H-001','RT-DLX','623',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D624','H-001','RT-DLX','624',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D625','H-001','RT-DLX','625',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D626','H-001','RT-DLX','626',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D627','H-001','RT-DLX','627',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D628','H-001','RT-DLX','628',6,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D629','H-001','RT-DLX','629',6,'maintenance');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-D630','H-001','RT-DLX','630',6,'available');
+
+-- =============================================
+-- EXECUTIVE SUITES: 40 rooms (Floors 7-8, 20 per floor)
+-- =============================================
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E701','H-001','RT-BSN','701',7,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E702','H-001','RT-BSN','702',7,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E703','H-001','RT-BSN','703',7,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E704','H-001','RT-BSN','704',7,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E705','H-001','RT-BSN','705',7,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E706','H-001','RT-BSN','706',7,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E707','H-001','RT-BSN','707',7,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E708','H-001','RT-BSN','708',7,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E709','H-001','RT-BSN','709',7,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E710','H-001','RT-BSN','710',7,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E711','H-001','RT-BSN','711',7,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E712','H-001','RT-BSN','712',7,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E713','H-001','RT-BSN','713',7,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E714','H-001','RT-BSN','714',7,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E715','H-001','RT-BSN','715',7,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E716','H-001','RT-BSN','716',7,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E717','H-001','RT-BSN','717',7,'maintenance');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E718','H-001','RT-BSN','718',7,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E719','H-001','RT-BSN','719',7,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E720','H-001','RT-BSN','720',7,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E801','H-001','RT-BSN','801',8,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E802','H-001','RT-BSN','802',8,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E803','H-001','RT-BSN','803',8,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E804','H-001','RT-BSN','804',8,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E805','H-001','RT-BSN','805',8,'occupied');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E806','H-001','RT-BSN','806',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E807','H-001','RT-BSN','807',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E808','H-001','RT-BSN','808',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E809','H-001','RT-BSN','809',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E810','H-001','RT-BSN','810',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E811','H-001','RT-BSN','811',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E812','H-001','RT-BSN','812',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E813','H-001','RT-BSN','813',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E814','H-001','RT-BSN','814',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E815','H-001','RT-BSN','815',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E816','H-001','RT-BSN','816',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E817','H-001','RT-BSN','817',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E818','H-001','RT-BSN','818',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E819','H-001','RT-BSN','819',8,'available');
+INSERT INTO rooms (room_id, hotel_id, room_type_id, room_number, floor_no, room_status) VALUES ('RM-E820','H-001','RT-BSN','820',8,'available');

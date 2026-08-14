@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 export function Button({ 
   children, 
   variant = 'primary', 
-  loading = false, 
-  disabled = false,
-  className = '',
-  ...props 
+  onClick, 
+  disabled = false, 
+  loading = false,
+  type = 'button',
+  style = {} 
 }) {
   return (
     <button 
-      className={`btn btn-${variant} ${className}`} 
-      disabled={loading || disabled}
-      {...props}
+      type={type}
+      className={`btn btn-${variant}`} 
+      onClick={onClick} 
+      disabled={disabled || loading}
+      style={style}
     >
-      {loading && <div className="spinner"></div>}
+      {loading && <span className="spinner" />}
       {children}
     </button>
   );

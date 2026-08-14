@@ -6,34 +6,16 @@ export function PaymentPage({ onBack, onPay, loading, amount }) {
 
   const paymentMethods = [
     {
-      id: 'upi',
-      icon: '📱',
-      title: 'UPI & Instant Pay',
-      desc: 'Google Pay, PhonePe, Paytm, or BHIM UPI (Most popular for Indian users)'
-    },
-    {
-      id: 'card',
-      icon: '💳',
-      title: 'Credit / Debit Card',
-      desc: 'Visa, Mastercard, RuPay, Maestro'
-    },
-    {
-      id: 'netbanking',
-      icon: '🪪',
-      title: 'Net Banking',
-      desc: 'Support for major local and national banks (SBI, HDFC, ICICI, Axis)'
-    },
-    {
-      id: 'wallet',
-      icon: '💰',
-      title: 'Digital Wallets',
-      desc: 'Mobikwik, Freecharge, Amazon Pay balance'
+      id: 'razorpay',
+      icon: '⚡',
+      title: 'Pay via Razorpay',
+      desc: 'UPI, Credit/Debit Cards, NetBanking, Wallets'
     },
     {
       id: 'pay-at-hotel',
       icon: '🏨',
       title: 'Pay at Hotel',
-      desc: 'Option to reserve without upfront online payment (requires verified card guarantee)'
+      desc: 'Option to reserve without upfront online payment'
     }
   ];
 
@@ -74,24 +56,7 @@ export function PaymentPage({ onBack, onPay, loading, amount }) {
               </div>
             </div>
 
-            {selectedMethod === 'card' && method.id === 'card' && (
-              <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #eee' }} className="flex-column gap-4">
-                <div className="form-group">
-                  <label className="form-label">Card Number</label>
-                  <input type="text" className="form-input" placeholder="0000 0000 0000 0000" />
-                </div>
-                <div className="flex-row gap-4">
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label className="form-label">Expiry Date</label>
-                    <input type="text" className="form-input" placeholder="MM/YY" />
-                  </div>
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label className="form-label">CVV</label>
-                    <input type="password" className="form-input" placeholder="123" />
-                  </div>
-                </div>
-              </div>
-            )}
+
             
             {selectedMethod === method.id && (
               <div style={{ marginTop: '16px', textAlign: 'right' }}>

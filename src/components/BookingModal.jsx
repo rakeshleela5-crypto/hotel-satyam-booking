@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from './Button';
-import { isPastDate, formatIndianDate, calculateNights } from '../utils/dates';
-import { bookRoom, joinWaitlist } from '../api';
+import { isPastDate, formatIndianDate, calculateNights, getLocalDateString } from '../utils/dates';
+import { bookRoom, joinWaitlist, createOrder, verifyPayment } from '../api';
 import { PaymentPage } from './PaymentPage';
 
 export function BookingModal({ room, onClose }) {
@@ -24,7 +24,12 @@ export function BookingModal({ room, onClose }) {
     if (!checkIn) return setDateError('Please select a check-in date.');
     if (!checkOut) return setDateError('Please select a check-out date.');
     if (isPastDate(checkIn)) return setDateError('Check-in date cannot be in the past.');
-    if (new Date(checkIn) >= new Date(checkOut)) return setDateError('Check-out date must be after check-in date.');
+    
+    // Parse the local strings manually so comparing works correctly in local time
+    const checkInDate = new Date(checkIn.split('-')[0], checkIn.split('-')[1] - 1, checkIn.split('-')[2]);
+    const checkOutDate = new Date(checkOut.split('-')[0], checkOut.split('-')[1] - 1, checkOut.split('-')[2]);
+    
+    if (checkInDate >= checkOutDate) return setDateError('Check-out date must be after check-in date.');
     setStep(2);
   };
 
@@ -36,10 +41,71 @@ export function BookingModal({ room, onClose }) {
   const handleBook = async (paymentMethod) => {
     setLoading(true);
     try {
-      const res = await bookRoom({ roomType: room.id, checkIn, checkOut, name, phone, guests, paymentMethod });
-      setResult({ type: 'success', message: `Booking Confirmed! ID: ${res.bookingId}` });
+      if (paymentMethod === 'razorpay') {
+        // Step 1: Create Order on Backend
+        const orderRes = await createOrder({ roomType: room.id, checkIn, checkOut, name, phone, guests });
+        
+        if (orderRes.orderId.startsWith('mock_')) {
+          // Simulate Razorpay Payment Success for Demo Mode
+          setTimeout(async () => {
+            try {
+              const verifyRes = await verifyPayment({
+                razorpay_payment_id: `mock_payment_${Date.now()}`,
+                razorpay_order_id: orderRes.orderId,
+                razorpay_signature: 'mock_signature',
+                bookingId: orderRes.bookingId
+              });
+              setResult({ type: 'success', message: `Payment Successful (Demo)! Booking ID: ${verifyRes.bookingId}` });
+            } catch (err) {
+              setResult({ type: 'error', message: err.message || 'Payment verification failed.' });
+            }
+          }, 1500); // Fake a 1.5s delay
+          return;
+        }
+
+        // Initialize Real Razorpay Checkout
+        const options = {
+          key: orderRes.keyId, // Fetched securely from the backend worker
+          amount: orderRes.amount, 
+          currency: "INR",
+          name: "Hotel Satyam Residency",
+          description: `Booking: ${room.name} (${nights} Nights)`,
+          order_id: orderRes.orderId,
+          handler: async function (response) {
+            try {
+              // Step 3: Verify Payment on Backend
+              const verifyRes = await verifyPayment({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                bookingId: orderRes.bookingId
+              });
+              setResult({ type: 'success', message: `Payment Successful! Booking Confirmed! ID: ${verifyRes.bookingId}` });
+            } catch (err) {
+              setResult({ type: 'error', message: err.message || 'Payment verification failed.' });
+            }
+          },
+          prefill: {
+            name: name,
+            contact: phone,
+          },
+          theme: {
+            color: "#D4AF37"
+          }
+        };
+        
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function (response){
+           setResult({ type: 'error', message: `Payment failed: ${response.error.description}` });
+        });
+        rzp.open();
+      } else {
+        // Fallback for Pay at Hotel
+        const res = await bookRoom({ roomType: room.id, checkIn, checkOut, name, phone, guests, paymentMethod });
+        setResult({ type: 'success', message: `Booking Confirmed (Pay at Hotel)! ID: ${res.bookingId}` });
+      }
     } catch (err) {
-      setResult({ type: 'error', message: 'Failed to book room.' });
+      setResult({ type: 'error', message: err.message || 'Failed to process booking.' });
     }
     setLoading(false);
   };
@@ -51,7 +117,7 @@ export function BookingModal({ room, onClose }) {
       await joinWaitlist({ roomType: room.id, preferredDates: `${checkIn} to ${checkOut}`, name, phone });
       setResult({ type: 'success', message: 'Added to waitlist! We will contact you soon.' });
     } catch (err) {
-      setResult({ type: 'error', message: 'Failed to join waitlist.' });
+      setResult({ type: 'error', message: err.message || 'Failed to join waitlist.' });
     }
     setLoading(false);
   };
@@ -99,12 +165,12 @@ export function BookingModal({ room, onClose }) {
           <div className="flex-column gap-4">
             <div className="form-group">
               <label className="form-label">Check-in Date</label>
-              <input type="date" className="form-input" value={checkIn} onChange={e => setCheckIn(e.target.value)} min={new Date().toISOString().split('T')[0]} />
+              <input type="date" className="form-input" value={checkIn} onChange={e => setCheckIn(e.target.value)} min={getLocalDateString()} />
             </div>
             
             <div className="form-group">
               <label className="form-label">Check-out Date</label>
-              <input type="date" className="form-input" value={checkOut} onChange={e => setCheckOut(e.target.value)} min={checkIn || new Date().toISOString().split('T')[0]} />
+              <input type="date" className="form-input" value={checkOut} onChange={e => setCheckOut(e.target.value)} min={checkIn || getLocalDateString()} />
             </div>
             
             {isDateValid && (

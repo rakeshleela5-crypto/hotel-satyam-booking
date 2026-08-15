@@ -1,13 +1,21 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, {
+  useEffect,
+  useState,
+  Suspense,
+  lazy
+} from 'react';
+
 import { config } from './config';
 import { RoomCard } from './components/RoomCard';
 import { BookingModal } from './components/BookingModal';
 import { SignupModal } from './components/SignupModal';
+
 import {
   LegalPageViewer,
   CookieConsentBanner,
   FooterLegalLinks
 } from './components/LegalPages';
+
 import { LiveRoomTracker } from './components/LiveRoomTracker';
 import './index.css';
 
@@ -79,7 +87,11 @@ function App() {
   };
 
   const handleSignupComplete = (newUser) => {
-    localStorage.setItem('satyam_user', JSON.stringify(newUser));
+    localStorage.setItem(
+      'satyam_user',
+      JSON.stringify(newUser)
+    );
+
     setUser(newUser);
     setShowSignupModal(false);
   };
@@ -292,7 +304,9 @@ function App() {
 
                 <div>
                   <strong>High-Speed Wi-Fi</strong>
-                  <p>Seamless connectivity for work &amp; leisure</p>
+                  <p>
+                    Seamless connectivity for work &amp; leisure
+                  </p>
                 </div>
               </div>
 
@@ -301,15 +315,19 @@ function App() {
 
                 <div>
                   <strong>24/7 Service</strong>
-                  <p>Dedicated reception &amp; hospitality staff</p>
+                  <p>
+                    Dedicated reception &amp; hospitality staff
+                  </p>
                 </div>
               </div>
-
               <div className="highlight-item">
                 <span className="highlight-icon">🛏</span>
+
                 <div>
                   <strong>Refined Comfort</strong>
-                  <p>Pristine, spacious &amp; air-conditioned rooms</p>
+                  <p>
+                    Pristine, spacious &amp; air-conditioned rooms
+                  </p>
                 </div>
               </div>
             </div>
@@ -379,7 +397,9 @@ function App() {
 
         <section id="booking" className="section container">
           <div className="section-header text-center mb-6">
-            <p className="section-category">Reserve Your Stay</p>
+            <p className="section-category">
+              Reserve Your Stay
+            </p>
 
             <h2 className="serif">Our Accommodations</h2>
 
@@ -416,7 +436,10 @@ function App() {
 
           <div className="reviews-grid">
             {config.reviews.map((review, index) => (
-              <div key={index} className="review-card">
+              <div
+                key={index}
+                className="review-card"
+              >
                 <div className="stars">★★★★★</div>
 
                 <p className="review-quote">
@@ -438,10 +461,12 @@ function App() {
             </span>
           </div>
         </section>
-
         <section id="contact" className="section container">
           <div className="section-header text-center mb-6">
-            <p className="section-category">Get In Touch</p>
+            <p className="section-category">
+              Get In Touch
+            </p>
+
             <h2 className="serif">Contact Us</h2>
           </div>
 
@@ -484,7 +509,10 @@ function App() {
           </div >
         </section >
 
-    <footer className="footer" role="contentinfo">
+    <footer
+      className="footer"
+      role="contentinfo"
+    >
       <h3 className="serif mb-4">
         {config.hotel.name}
       </h3>
@@ -503,8 +531,8 @@ function App() {
           opacity: 0.5
         }}
       >
-        © {new Date().getFullYear()} {config.hotel.name}.
-        All Rights Reserved.
+        © {new Date().getFullYear()}{' '}
+        {config.hotel.name}. All Rights Reserved.
 
         <span
           style={{
@@ -544,7 +572,9 @@ function App() {
         </span>
       </p>
 
-      <FooterLegalLinks onOpenLegal={openLegal} />
+      <FooterLegalLinks
+        onOpenLegal={openLegal}
+      />
     </footer>
       </div >
 
@@ -558,7 +588,9 @@ function App() {
       >
         <div
           className="lightbox-content"
-          onClick={(event) => event.stopPropagation()}
+          onClick={(event) => {
+            event.stopPropagation();
+          }}
         >
           <button
             type="button"
@@ -574,7 +606,6 @@ function App() {
             alt={activeImage.title}
             className="lightbox-img"
           />
-
           <div className="lightbox-caption">
             <h3>{activeImage.title}</h3>
             <p>{activeImage.caption}</p>
@@ -583,6 +614,7 @@ function App() {
       </div>
     )
 }
+
 {
   selectedRoom && user && (
     <BookingModal
@@ -602,7 +634,9 @@ function App() {
   )
 }
 
-<CookieConsentBanner onOpenLegal={openLegal} />
+<CookieConsentBanner
+  onOpenLegal={openLegal}
+/>
 
 {
   activeLegalPage && (

@@ -5,7 +5,7 @@ import { BookingModal } from './components/BookingModal';
 import { SignupModal } from './components/SignupModal';
 import { LegalPageViewer, CookieConsentBanner, FooterLegalLinks } from './components/LegalPages';
 import { LiveRoomTracker } from './components/LiveRoomTracker';
-import { AdminDashboard } from './components/AdminDashboard';
+import { AdminRoute } from './components/AdminRoute';
 import './index.css';
 
 function App() {
@@ -43,7 +43,8 @@ function App() {
   if (isInitializing) return null;
 
   if (showAdmin) {
-    return <AdminDashboard onBack={() => setShowAdmin(false)} />;
+    // Use AdminRoute instead of AdminDashboard directly
+    return <AdminRoute onBack={() => setShowAdmin(false)} />;
   }
 
   return (
@@ -83,7 +84,7 @@ function App() {
             <p className="hero-subhead">Welcome to Rayagada's Finest</p>
             <h1 className="hero-title serif">{config.hotel.name}</h1>
             <p className="hero-tagline">{config.hotel.subtitle}</p>
-            
+
             <div className="hero-cta-group">
               <button className="btn btn-primary hero-btn" onClick={() => scrollToSection('booking')}>
                 Book Your Stay
@@ -103,7 +104,7 @@ function App() {
           </div>
           <div className="about-card">
             <p className="about-text">{config.hotel.aboutText}</p>
-            
+
             <div className="highlights-grid mt-4">
               <div className="highlight-item">
                 <span className="highlight-icon">📍</span>
@@ -120,14 +121,14 @@ function App() {
                 </div>
               </div>
               <div className="highlight-item">
-                <span className="highlight-icon">🛎️</span>
+                <span className="highlight-icon">🛎</span>
                 <div>
                   <strong>24/7 Service</strong>
                   <p>Dedicated reception & hospitality staff</p>
                 </div>
               </div>
               <div className="highlight-item">
-                <span className="highlight-icon">🛏️</span>
+                <span className="highlight-icon">🛏</span>
                 <div>
                   <strong>Refined Comfort</strong>
                   <p>Pristine, spacious & air-conditioned rooms</p>
@@ -147,8 +148,8 @@ function App() {
 
           <div className="gallery-grid">
             {config.gallery.map((img) => (
-              <div 
-                key={img.id} 
+              <div
+                key={img.id}
                 className="gallery-card"
                 onClick={() => setActiveImage(img)}
               >
@@ -175,9 +176,9 @@ function App() {
 
           <div className="flex-column">
             {config.roomTypes.map(room => (
-              <RoomCard 
-                key={room.id} 
-                room={room} 
+              <RoomCard
+                key={room.id}
+                room={room}
                 onBook={(selected) => {
                   if (!user) {
                     setSelectedRoom(selected);
@@ -185,7 +186,7 @@ function App() {
                   } else {
                     setSelectedRoom(selected);
                   }
-                }} 
+                }}
               />
             ))}
           </div>
@@ -249,7 +250,7 @@ function App() {
           <p>Email: {config.hotel.email} | Reception: {config.hotel.receptionPhone}</p>
           <p className="mt-4" style={{ fontSize: '12px', opacity: 0.5 }}>
             © {new Date().getFullYear()} {config.hotel.name}. All Rights Reserved. 
-            <span style={{ cursor: 'pointer', marginLeft: '10px' }} onClick={() => setShowAdmin(true)}>🛡️</span>
+            <span style={{ cursor: 'pointer', marginLeft: '10px' }} onClick={() => setShowAdmin(true)}>🛡</span>
             <span style={{ cursor: 'pointer', marginLeft: '10px', opacity: 0.4 }} onClick={() => (window.location.href = '/reception')}>Reception</span>
           </p>
           <FooterLegalLinks onOpenLegal={openLegal} />
@@ -290,7 +291,6 @@ function App() {
       )}
 
       {/* Cookie Banner */}
-      {/* Passing openLegal to banner for Cookie policy */}
       <CookieConsentBanner onOpenLegal={openLegal} />
 
       {/* Legal Page Viewer */}

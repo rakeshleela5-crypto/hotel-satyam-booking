@@ -421,6 +421,93 @@ app.get('/api/admin/walkins', async (c) => {
   }
 });
 
+app.get('/api/admin/online-bookings', async (c) => {
+  const db = c.env.DB;
+  if (!db) return c.json({ error: "DB not found" }, 500);
+  
+  const url = new URL(c.req.url);
+  const dateStr = url.searchParams.get('date');
+  
+  try {
+    let query = `
+      SELECT b.booking_id, b.check_in, b.check_out, b.nights, b.total_amount, b.booking_status, u.full_name, u.phone
+      FROM bookings b
+      JOIN users u ON b.user_id = u.user_id
+      WHERE b.source != 'walkin' OR b.source IS NULL
+    `;
+    let params = [];
+    
+    if (dateStr) {
+      query += ` AND date(b.check_in) = date(?)`;
+      params.push(dateStr);
+    }
+    
+    query += ` ORDER BY b.created_at DESC LIMIT 50`;
+    
+    const stmt = db.prepare(query).bind(...params);
+    const { results } = await stmt.all();
+    
+    return c.json({ success: true, bookings: results || [] });
+  } catch (err) {
+    return c.json({ error: err.message }, 500);
+  }
+});
+
+app.get('/api/admin/revenue-trend', async (c) => {
+  const db = c.env.DB;
+  if (!db) return c.json({ error: "DB not found" }, 500);
+
+  const url = new URL(c.req.url);
+  const daysParam = url.searchParams.get('days') || '7';
+  const days = Math.min(Math.max(parseInt(daysParam, 10) || 7, 1), 90);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const startDate = new Date(today);
+  startDate.setDate(startDate.getDate() - days + 1);
+
+  const startDateStr = startDate.toISOString().slice(0, 10);
+  const todayStr = today.toISOString().slice(0, 10);
+
+  try {
+    const { results } = await db.prepare(`
+      SELECT date(check_in) as date, total_amount, source
+      FROM bookings
+      WHERE date(check_in) >= ? AND date(check_in) <= ?
+    `).bind(startDateStr, todayStr).all();
+
+    const map = new Map();
+    for (let i = 0; i < days; i++) {
+        const d = new Date(startDate);
+        d.setDate(d.getDate() + i);
+        const dateStr = d.toISOString().slice(0, 10);
+        map.set(dateStr, { date: dateStr, walkin_revenue: 0, online_revenue: 0 });
+    }
+
+    for (const row of (results || [])) {
+        const date = row.date;
+        if (!map.has(date)) continue;
+
+        const amount = parseFloat(row.total_amount) || 0;
+        const source = (row.source || '').toLowerCase();
+
+        const entry = map.get(date);
+        if (source === 'walkin') {
+            entry.walkin_revenue += amount;
+        } else {
+            entry.online_revenue += amount;
+        }
+    }
+
+    const data = Array.from(map.values()).sort((a, b) => (a.date < b.date ? -1 : 1));
+
+    return c.json({ success: true, data });
+  } catch (err) {
+    console.error('Error in /api/admin/revenue-trend:', err);
+    return c.json({ success: false, error: 'Failed to fetch revenue trend' }, 500);
+  }
+});
+
 app.get('/api/availability', handleAvailability);
 
 // NEW: Walk-in booking endpoint for reception / offline guests

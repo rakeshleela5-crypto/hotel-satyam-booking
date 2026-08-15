@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { config } from './config';
 import { RoomCard } from './components/RoomCard';
 import { BookingModal } from './components/BookingModal';
 import { SignupModal } from './components/SignupModal';
 import { LegalPageViewer, CookieConsentBanner, FooterLegalLinks } from './components/LegalPages';
 import { LiveRoomTracker } from './components/LiveRoomTracker';
-import { AdminRoute } from './components/AdminRoute';
 import './index.css';
+
+// Lazy load AdminRoute so it doesn't bloat the main website load time
+const AdminRoute = lazy(() => import('./components/AdminRoute').then(m => ({ default: m.AdminRoute })));
 
 function App() {
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -22,6 +24,12 @@ function App() {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+    
+    if (window.location.pathname === '/admin') {
+      setShowAdmin(true);
+      window.history.replaceState(null, '', '/admin');
+    }
+
     setIsInitializing(false);
   }, []);
 
@@ -43,8 +51,18 @@ function App() {
   if (isInitializing) return null;
 
   if (showAdmin) {
-    // Use AdminRoute instead of AdminDashboard directly
-    return <AdminRoute onBack={() => setShowAdmin(false)} />;
+    return (
+      <Suspense fallback={
+        <div className="section container" style={{ padding: '40px 20px', minHeight: '100vh', background: 'var(--background-color)', textAlign: 'center' }}>
+          <p>Loading Secure Dashboard...</p>
+        </div>
+      }>
+        <AdminRoute onBack={() => {
+          setShowAdmin(false);
+          window.history.replaceState(null, '', '/');
+        }} />
+      </Suspense>
+    );
   }
 
   return (

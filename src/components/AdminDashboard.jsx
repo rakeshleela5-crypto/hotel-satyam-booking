@@ -7,10 +7,13 @@ export function AdminDashboard({ onBack }) {
 
   const [walkins, setWalkins] = useState([]);
   const [walkinsLoading, setWalkinsLoading] = useState(true);
+  const [walkinDate, setWalkinDate] = useState(() => {
+    return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  });
 
   useEffect(() => {
     fetchBookings();
-    fetchTodayWalkins();
+    fetchTodayWalkins(walkinDate);
   }, []);
 
   const fetchBookings = async () => {
@@ -27,19 +30,28 @@ export function AdminDashboard({ onBack }) {
     }
   };
 
-  const fetchTodayWalkins = async () => {
+  const fetchTodayWalkins = async (date) => {
     try {
       setWalkinsLoading(true);
-      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-      const data = await apiCall(`/api/admin/walkins?date=${today}`);
+      const data = await apiCall(`/api/admin/walkins?date=${date}`);
       if (data.success) {
         setWalkins(data.walkins);
       }
     } catch (err) {
-      console.error('Failed to fetch today walk-ins:', err);
+      console.error('Failed to fetch walk-ins:', err);
     } finally {
       setWalkinsLoading(false);
     }
+  };
+
+  const handleRefreshWalkins = () => {
+    fetchTodayWalkins(walkinDate);
+  };
+
+  const handleDateChange = (e) => {
+    const newDate = e.target.value;
+    setWalkinDate(newDate);
+    fetchTodayWalkins(newDate);
   };
 
   const getStatusBadge = (status) => {
@@ -56,15 +68,37 @@ export function AdminDashboard({ onBack }) {
 
       {/* Today’s Walk-ins Section */}
       <div style={{ marginBottom: '40px' }}>
-        <h3 className="serif mb-2">Today’s Walk-ins</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <h3 className="serif">Offline Walk-ins</h3>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <label style={{ fontSize: '13px' }}>
+              Date:
+              <input
+                type="date"
+                value={walkinDate}
+                onChange={handleDateChange}
+                style={{ marginLeft: '6px', padding: '4px 6px', fontSize: '13px', background: 'var(--border-color)', color: 'white', border: 'none', borderRadius: '4px' }}
+              />
+            </label>
+            <button
+              className="btn-small-secondary"
+              onClick={handleRefreshWalkins}
+              disabled={walkinsLoading}
+              style={{ marginLeft: '6px' }}
+            >
+              {walkinsLoading ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
+        </div>
+
         <p className="mb-4" style={{ fontSize: '14px', opacity: 0.8 }}>
-          Walk-in bookings with check-in date = today
+          Walk-in bookings with check-in date = {walkinDate}
         </p>
 
         {walkinsLoading ? (
-          <p>Loading today’s walk-ins…</p>
+          <p>Loading walk-ins...</p>
         ) : walkins.length === 0 ? (
-          <p>No walk-in bookings for today.</p>
+          <p>No walk-in bookings for this date.</p>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>

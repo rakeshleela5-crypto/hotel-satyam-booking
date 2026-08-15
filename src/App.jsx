@@ -505,149 +505,149 @@ function App() {
                   </a>
                 </p>
               ))}
-    </div >
+            </div >
           </div >
         </section >
 
-    <footer
-      className="footer"
-      role="contentinfo"
-    >
-      <h3 className="serif mb-4">
-        {config.hotel.name}
-      </h3>
-
-      <p>{config.hotel.address}</p>
-
-      <p>
-        Email: {config.hotel.email} | Reception:{' '}
-        {config.hotel.receptionPhone}
-      </p>
-
-      <p
-        className="mt-4"
-        style={{
-          fontSize: '12px',
-          opacity: 0.5
-        }}
-      >
-        © {new Date().getFullYear()}{' '}
-        {config.hotel.name}. All Rights Reserved.
-
-        <span
-          style={{
-            cursor: 'pointer',
-            marginLeft: '10px'
-          }}
-          onClick={() => setShowAdmin(true)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              setShowAdmin(true);
-            }
-          }}
+        <footer
+          className="footer"
+          role="contentinfo"
         >
-          🛡
-        </span>
+          <h3 className="serif mb-4">
+            {config.hotel.name}
+          </h3>
 
-        <span
-          style={{
-            cursor: 'pointer',
-            marginLeft: '10px',
-            opacity: 0.4
-          }}
-          onClick={() => {
-            window.location.href = '/reception';
-          }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              window.location.href = '/reception';
-            }
-          }}
-        >
-          Reception
-        </span>
-      </p>
+          <p>{config.hotel.address}</p>
 
-      <FooterLegalLinks
-        onOpenLegal={openLegal}
-      />
-    </footer>
+          <p>
+            Email: {config.hotel.email} | Reception:{' '}
+            {config.hotel.receptionPhone}
+          </p>
+
+          <p
+            className="mt-4"
+            style={{
+              fontSize: '12px',
+              opacity: 0.5
+            }}
+          >
+            © {new Date().getFullYear()}{' '}
+            {config.hotel.name}. All Rights Reserved.
+
+            <span
+              style={{
+                cursor: 'pointer',
+                marginLeft: '10px'
+              }}
+              onClick={() => setShowAdmin(true)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  setShowAdmin(true);
+                }
+              }}
+            >
+              🛡
+            </span>
+
+            <span
+              style={{
+                cursor: 'pointer',
+                marginLeft: '10px',
+                opacity: 0.4
+              }}
+              onClick={() => {
+                window.location.href = '/reception';
+              }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  window.location.href = '/reception';
+                }
+              }}
+            >
+              Reception
+            </span>
+          </p>
+
+          <FooterLegalLinks
+            onOpenLegal={openLegal}
+          />
+        </footer>
       </div >
 
-    { activeImage && (
-      <div
-        className="lightbox-overlay"
-        onClick={() => setActiveImage(null)}
-        role="dialog"
-        aria-modal="true"
-        aria-label={activeImage.title}
-      >
+      {activeImage && (
         <div
-          className="lightbox-content"
-          onClick={(event) => {
-            event.stopPropagation();
-          }}
+          className="lightbox-overlay"
+          onClick={() => setActiveImage(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={activeImage.title}
         >
-          <button
-            type="button"
-            className="lightbox-close"
-            onClick={() => setActiveImage(null)}
-            aria-label="Close image preview"
+          <div
+            className="lightbox-content"
+            onClick={(event) => {
+              event.stopPropagation();
+            }}
           >
-            ×
-          </button>
+            <button
+              type="button"
+              className="lightbox-close"
+              onClick={() => setActiveImage(null)}
+              aria-label="Close image preview"
+            >
+              ×
+            </button>
 
-          <img
-            src={activeImage.url}
-            alt={activeImage.title}
-            className="lightbox-img"
-          />
-          <div className="lightbox-caption">
-            <h3>{activeImage.title}</h3>
-            <p>{activeImage.caption}</p>
+            <img
+              src={activeImage.url}
+              alt={activeImage.title}
+              className="lightbox-img"
+            />
+            <div className="lightbox-caption">
+              <h3>{activeImage.title}</h3>
+              <p>{activeImage.caption}</p>
+            </div>
           </div>
         </div>
-      </div>
-    )
-}
+      )
+      }
 
-{
-  selectedRoom && user && (
-    <BookingModal
-      room={selectedRoom}
-      user={user}
-      onClose={() => setSelectedRoom(null)}
-    />
-  )
-}
+      {
+        selectedRoom && user && (
+          <BookingModal
+            room={selectedRoom}
+            user={user}
+            onClose={() => setSelectedRoom(null)}
+          />
+        )
+      }
 
-{
-  showSignupModal && (
-    <SignupModal
-      onComplete={handleSignupComplete}
-      onOpenLegal={openLegal}
-    />
-  )
-}
+      {
+        showSignupModal && (
+          <SignupModal
+            onComplete={handleSignupComplete}
+            onOpenLegal={openLegal}
+          />
+        )
+      }
 
-<CookieConsentBanner
-  onOpenLegal={openLegal}
-/>
+      <CookieConsentBanner
+        onOpenLegal={openLegal}
+      />
 
-{
-  activeLegalPage && (
-    <LegalPageViewer
-      pageKey={activeLegalPage}
-      onClose={closeLegal}
-    />
-  )
-}
+      {
+        activeLegalPage && (
+          <LegalPageViewer
+            pageKey={activeLegalPage}
+            onClose={closeLegal}
+          />
+        )
+      }
 
-<LiveRoomTracker />
+      <LiveRoomTracker />
     </>
   );
 }

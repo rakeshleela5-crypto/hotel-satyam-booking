@@ -389,4 +389,159 @@ app.get('/api/admin/bookings', async (c) => {
   }
 });
 
+app.get('/api/availability', handleAvailability);
+
+// NEW: Walk-in booking endpoint for reception / offline guests
+app.post('/api/book-walkin', handleBookWalkin);
+
+// NEW: Password check endpoint for reception access
+app.post('/api/check-reception-password', handleCheckReceptionPassword);
+
 export default app;
+
+// ----------------- Handlers -----------------
+
+async function handleAvailability(c) {
+  const env = c.env;
+  if (!env.DB) return c.json({ error: "DB not found" }, 500);
+
+  const url = new URL(c.req.url);
+  const date = url.searchParams.get('date') || new Date().toISOString().slice(0, 10);
+  const roomTypeIdParam = url.searchParams.get('room_type_id');
+
+  let sql = `
+    SELECT 
+      rt.room_type_id,
+      rt.room_type_name as name,
+      COUNT(DISTINCT r.room_id) as total_rooms,
+      COUNT(DISTINCT CASE 
+        WHEN b.booking_status IN ('pending', 'confirmed', 'checked_in') 
+        AND date(b.check_in) <= date(?1) 
+        AND date(b.check_out) > date(?1) 
+        THEN b.room_id 
+      END) as booked_rooms
+    FROM room_types rt
+    LEFT JOIN rooms r ON rt.room_type_id = r.room_type_id
+    LEFT JOIN bookings b ON r.room_id = b.room_id
+  `;
+
+  const params = [date];
+
+  if (roomTypeIdParam) {
+    sql += " WHERE rt.room_type_id = ?2 ";
+    params.push(roomTypeIdParam);
+  }
+
+  sql += " GROUP BY rt.room_type_id, rt.room_type_name";
+
+  try {
+    const stmt = env.DB.prepare(sql).bind(...params);
+    const { results } = await stmt.all();
+
+    const rows = (results || []).map((r) => ({
+      room_type_id: r.room_type_id,
+      name: r.name,
+      total_rooms: r.total_rooms,
+      booked_rooms: r.booked_rooms,
+      remaining_rooms: r.total_rooms - r.booked_rooms,
+      date,
+    }));
+
+    return c.json(rows);
+  } catch (err) {
+    return c.json({ error: err.message }, 500);
+  }
+}
+
+// NEW: Handle walk-in / offline bookings (reception use)
+async function handleBookWalkin(c) {
+  const db = c.env.DB;
+  if (!db) {
+    console.warn("D1 database not bound. Using mock response.");
+    return c.json({ success: true, bookingId: `WALKIN-${Date.now()}`, mock: true });
+  }
+
+  try {
+    const payload = await c.req.json();
+    const {
+      roomType,      // e.g. "Standard", "Deluxe", "Suite"
+      checkIn,       // "2026-08-20"
+      checkOut,      // "2026-08-22"
+      name,
+      phone,
+      guests,
+      notes          // optional, e.g. "walk-in", "offline"
+    } = payload;
+
+    if (!roomType || !checkIn || !checkOut || !name) {
+      return c.json({ error: 'Missing required fields' }, 400);
+    }
+
+    const userId = await getOrCreateUser(db, { name, phone });
+
+    // Map frontend roomType to room_type_id
+    let mappedRoomTypeId = 'RT-STD';
+    if (roomType.toLowerCase().includes('deluxe')) mappedRoomTypeId = 'RT-DLX';
+    else if (roomType.toLowerCase().includes('suite')) mappedRoomTypeId = 'RT-BSN';
+
+    // Find an available room
+    const room = await db.prepare("SELECT room_id, base_price FROM rooms JOIN room_types USING(room_type_id) WHERE room_type_id = ? AND room_status = 'available' LIMIT 1").bind(mappedRoomTypeId).first();
+
+    if (!room) {
+      throw new Error('No available rooms found for the selected category.');
+    }
+
+    const roomId = room.room_id;
+    const basePrice = room.base_price || 2000.00;
+
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    const nights = Math.max(1, Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)));
+    const totalAmount = nights * basePrice;
+
+    const bookingId = `W-${Math.floor(10000 + Math.random() * 90000)}`;
+
+    // Insert booking marked as walk-in
+    await db.prepare(
+      "INSERT INTO bookings (booking_id, user_id, hotel_id, room_id, check_in, check_out, nights, adults, children, total_amount, booking_status, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', 'walkin')"
+    ).bind(
+      bookingId,
+      userId,
+      'H-001',
+      roomId,
+      checkIn,
+      checkOut,
+      nights,
+      parseInt(guests) || 1,
+      0,
+      totalAmount
+    ).run();
+
+    // Optional: you can also store notes in a separate table or extend schema later
+
+    return c.json({ success: true, bookingId });
+  } catch (error) {
+    console.error("Walk-in booking error:", error);
+    return c.json({ error: error.message }, 500);
+  }
+}
+
+// NEW: Handle reception password check
+async function handleCheckReceptionPassword(c) {
+  const env = c.env;
+  const body = await c.req.json();
+  const { password } = body;
+
+  const correctPassword = env.RECEPTION_PASSWORD;
+
+  // If not configured, allow access (for dev) or you can block by returning { allowed: false }
+  if (!correctPassword) {
+    return c.json({ allowed: true });
+  }
+
+  if (password === correctPassword) {
+    return c.json({ allowed: true });
+  }
+
+  return c.json({ allowed: false });
+}

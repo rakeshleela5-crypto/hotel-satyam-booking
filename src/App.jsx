@@ -250,6 +250,7 @@ function App() {
           <p className="mt-4" style={{ fontSize: '12px', opacity: 0.5 }}>
             © {new Date().getFullYear()} {config.hotel.name}. All Rights Reserved. 
             <span style={{ cursor: 'pointer', marginLeft: '10px' }} onClick={() => setShowAdmin(true)}>🛡️</span>
+            <span style={{ cursor: 'pointer', marginLeft: '10px', opacity: 0.4 }} onClick={() => (window.location.href = '/reception')}>Reception</span>
           </p>
           <FooterLegalLinks onOpenLegal={openLegal} />
         </footer>

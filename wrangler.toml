@@ -3,12 +3,14 @@ main = "server.js"
 compatibility_date = "2024-10-01"
 
 [assets]
-directory = "dist"
+directory = "dist/client"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
 
 [[d1_databases]]
 binding = "DB"
-database_name = "hotel-satyam-booking-db"
-database_id = "5a00c6dc-70e4-426d-b0e4-de4ccd1137f3"
+database_name = "hotelsatyamdatabase"
+database_id = "a1475244-fe5a-4e91-b223-0de557ef455b"
 
 [ai]
 binding = "AI"

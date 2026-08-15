@@ -389,6 +389,38 @@ app.get('/api/admin/bookings', async (c) => {
   }
 });
 
+app.get('/api/admin/walkins', async (c) => {
+  const db = c.env.DB;
+  if (!db) return c.json({ error: "DB not found" }, 500);
+  
+  const url = new URL(c.req.url);
+  const dateStr = url.searchParams.get('date');
+  
+  try {
+    let query = `
+      SELECT b.booking_id, b.check_in, b.check_out, b.nights, b.total_amount, b.booking_status, u.full_name, u.phone
+      FROM bookings b
+      JOIN users u ON b.user_id = u.user_id
+      WHERE b.source = 'walkin'
+    `;
+    let params = [];
+    
+    if (dateStr) {
+      query += ` AND date(b.check_in) = date(?)`;
+      params.push(dateStr);
+    }
+    
+    query += ` ORDER BY b.created_at DESC LIMIT 50`;
+    
+    const stmt = db.prepare(query).bind(...params);
+    const { results } = await stmt.all();
+    
+    return c.json({ success: true, walkins: results || [] });
+  } catch (err) {
+    return c.json({ error: err.message }, 500);
+  }
+});
+
 app.get('/api/availability', handleAvailability);
 
 // NEW: Walk-in booking endpoint for reception / offline guests

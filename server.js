@@ -533,6 +533,28 @@ app.post('/api/book-walkin', handleBookWalkin);
 // NEW: Password check endpoint for reception access
 app.post('/api/check-reception-password', handleCheckReceptionPassword);
 
+app.post('/api/admin/login', async (c) => {
+  try {
+    const body = await c.req.json().catch(() => ({}));
+    const { password } = body;
+    const correctPassword = c.env.ADMIN_PASSWORD;
+
+    if (!correctPassword) {
+      console.error('ADMIN_PASSWORD not configured');
+      return c.json({ success: false, error: 'Server configuration error' }, 500);
+    }
+
+    if (password === correctPassword) {
+      return c.json({ success: true });
+    } else {
+      return c.json({ success: false, error: 'Invalid password' }, 401);
+    }
+  } catch (err) {
+    console.error('Error in /api/admin/login:', err);
+    return c.json({ success: false, error: 'Invalid request' }, 400);
+  }
+});
+
 export default app;
 
 // ----------------- Handlers -----------------

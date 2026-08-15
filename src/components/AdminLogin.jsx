@@ -20,6 +20,7 @@ export function AdminLogin({ onLoginSuccess }) {
             if (res.success) {
                 // Mark as authenticated in this session
                 sessionStorage.setItem('isAdminAuthenticated', 'true');
+                sessionStorage.setItem('adminToken', password);
                 onLoginSuccess();
             } else {
                 setError(res.error || 'Invalid password');

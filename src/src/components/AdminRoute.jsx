@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AdminLogin } from './AdminLogin';
 import { AdminDashboard } from './AdminDashboard';
 
-export function AdminRoute() {
+export function AdminRoute({ onBack }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [checked, setChecked] = useState(false);
 
@@ -24,5 +24,5 @@ export function AdminRoute() {
         return <AdminLogin onLoginSuccess={() => setIsAuthenticated(true)} />;
     }
 
-    return <AdminDashboard onBack={() => (window.location.href = '/')} />;
+    return <AdminDashboard onBack={onBack} />;
 }

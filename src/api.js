@@ -1,6 +1,6 @@
 // BACKEND: Replace mock implementations with real API calls
 // const BASE_URL = "https://api.yourdomain.workers.dev";
-// return fetch(`${BASE_URL}/availability?...`).then(r => r.json());
+// return fetch(${BASE_URL}/availability?...).then(r => r.json());
 
 export async function bookRoom(payload) {
   const response = await fetch('/api/bookRoom', {
@@ -8,12 +8,12 @@ export async function bookRoom(payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-  
+
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to book room');
   }
-  
+
   return response.json();
 }
 
@@ -23,12 +23,12 @@ export async function joinWaitlist(payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-  
+
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to join waitlist');
   }
-  
+
   return response.json();
 }
 
@@ -38,12 +38,12 @@ export async function signupUser(payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-  
+
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to signup');
   }
-  
+
   return response.json();
 }
 
@@ -54,12 +54,12 @@ export async function createOrder(payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-  
+
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to create order');
   }
-  
+
   return response.json();
 }
 
@@ -69,17 +69,28 @@ export async function verifyPayment(payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-  
+
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to verify payment');
   }
-  
+
   return response.json();
 }
 
 export async function apiCall(url, options = {}) {
-  const response = await fetch(url, options);
+  // Build URL
+  const fullUrl = new URL(url, window.location.origin);
+
+  // If it's an admin API call, attach token if available
+  if (fullUrl.pathname.startsWith('/api/admin/')) {
+    const token = sessionStorage.getItem('adminToken');
+    if (token) {
+      fullUrl.searchParams.set('token', token);
+    }
+  }
+
+  const response = await fetch(fullUrl.toString(), options);
   if (!response.ok) {
     throw new Error('API Call Failed');
   }

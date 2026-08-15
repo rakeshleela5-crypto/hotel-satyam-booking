@@ -4,7 +4,18 @@ const app = new Hono();
 
 // Admin Authentication Middleware
 app.use('/api/admin/*', async (c, next) => {
-  // TEMPORARY BYPASS
+  // Skip auth for login
+  if (c.req.path === '/api/admin/login') {
+    return next();
+  }
+
+  const token = c.req.query('token');
+  const correctPassword = c.env.ADMIN_PASSWORD;
+
+  if (!correctPassword || token !== correctPassword) {
+    return c.json({ success: false, error: 'Unauthorized' }, 401);
+  }
+
   return next();
 });
 

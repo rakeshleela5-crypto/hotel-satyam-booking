@@ -90,9 +90,22 @@ export async function apiCall(url, options = {}) {
     }
   }
 
-  const response = await fetch(fullUrl.toString(), options);
-  if (!response.ok) {
-    throw new Error('API Call Failed');
+  // Ensure JSON headers if body is provided
+  if (options.body && typeof options.body === 'string') {
+    options.headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
   }
-  return response.json();
+
+  const response = await fetch(fullUrl.toString(), options);
+  
+  try {
+    return await response.json();
+  } catch (err) {
+    if (!response.ok) {
+      throw new Error('API Call Failed');
+    }
+    return null;
+  }
 }

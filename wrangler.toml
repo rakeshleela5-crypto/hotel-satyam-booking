@@ -14,3 +14,6 @@ database_id = "a1475244-fe5a-4e91-b223-0de557ef455b"
 
 [ai]
 binding = "AI"
+
+[vars]
+ADMIN_PASSWORD = "admin123"

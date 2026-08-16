@@ -497,4 +497,81 @@ app.get('/api/admin/bookings', async (c) => {
   return c.json({ success: true, bookings: results });
 });
 
+app.post('/api/check-reception-password', async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const { password } = body;
+  
+  const correctPassword = c.env.RECEPTION_PASSWORD || c.env.ADMIN_PASSWORD;
+
+  if (password === correctPassword) {
+    return c.json({ allowed: true });
+  } else {
+    return c.json({ allowed: false });
+  }
+});
+
+app.post('/api/book-walkin', async (c) => {
+  const db = c.env.DB;
+  const body = await c.req.json().catch(() => ({}));
+
+  const {
+    name,
+    phone,
+    roomType,
+    checkIn,
+    checkOut,
+    guests = 1,
+    notes = 'walk-in'
+  } = body;
+
+  if (!name || !roomType || !checkIn || !checkOut) {
+    return c.json({ success: false, error: 'Missing required fields' }, 400);
+  }
+
+  const roomTypeId = roomToTypeId(roomType);
+  const availability = await checkAvailability(db, roomTypeId, checkIn, checkOut);
+
+  if (!availability.available || !availability.room) {
+    return c.json({ success: false, error: 'Selected room type is not available for these dates' }, 409);
+  }
+
+  const userId = await ensureUser(db, { name, email: null, phone });
+  const nights = nightsBetween(checkIn, checkOut);
+  const basePrice = Number(availability.room.base_price || 0);
+  const subtotal = nights * basePrice;
+  const tax = Math.round(subtotal * 0.12);
+  const totalAmount = subtotal + tax;
+
+  const bookingId = uuid();
+  const code = bookingCode();
+
+  await db.prepare(`
+    INSERT INTO bookings (
+      id, booking_code, user_id, room_type_id, room_id,
+      guest_name, guest_email, guest_phone,
+      check_in, check_out, nights, guests,
+      subtotal, tax, total_amount, status, payment_status, booking_status, special_requests, source
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', 'paid', 'confirmed', ?, 'walk-in')
+  `).bind(
+    bookingId,
+    code,
+    userId,
+    roomTypeId,
+    availability.room.room_id,
+    name,
+    null,
+    phone || '',
+    checkIn,
+    checkOut,
+    nights,
+    Number(guests) || 1,
+    subtotal,
+    tax,
+    totalAmount,
+    notes
+  ).run();
+
+  return c.json({ success: true, bookingId, bookingCode: code });
+});
+
 export default app;

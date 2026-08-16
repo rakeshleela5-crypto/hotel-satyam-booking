@@ -574,4 +574,29 @@ app.post('/api/book-walkin', async (c) => {
   return c.json({ success: true, bookingId, bookingCode: code });
 });
 
+app.get('/api/room-counts', async (c) => {
+  const db = c.env.DB;
+  const dateStr = c.req.query('date');
+  
+  if (!dateStr) {
+    return c.json({ success: false, error: 'date is required' }, 400);
+  }
+
+  const { results } = await db.prepare(`
+    SELECT rt.room_type_id, rt.room_type_name as name, 
+           COUNT(r.room_id) as remaining_rooms
+    FROM room_types rt
+    LEFT JOIN rooms r ON r.room_type_id = rt.room_type_id AND r.room_status = 'available'
+    WHERE r.room_id NOT IN (
+      SELECT room_id FROM bookings
+      WHERE booking_status IN ('pending', 'confirmed', 'checked_in')
+        AND date(check_in) <= date(?) 
+        AND date(check_out) > date(?)
+    )
+    GROUP BY rt.room_type_id, rt.room_type_name
+  `).bind(dateStr, dateStr).all();
+
+  return c.json(results || []);
+});
+
 export default app;

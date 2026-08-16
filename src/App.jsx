@@ -292,7 +292,6 @@ function App() {
             <div className="highlights-grid mt-4">
               <div className="highlight-item">
                 <span className="highlight-icon">📍</span>
-
                 <div>
                   <strong>Prime Location</strong>
                   <p>Gajapati Junction, heart of Rayagada</p>
@@ -301,7 +300,6 @@ function App() {
 
               <div className="highlight-item">
                 <span className="highlight-icon">📶</span>
-
                 <div>
                   <strong>High-Speed Wi-Fi</strong>
                   <p>
@@ -312,7 +310,6 @@ function App() {
 
               <div className="highlight-item">
                 <span className="highlight-icon">🛎</span>
-
                 <div>
                   <strong>24/7 Service</strong>
                   <p>
@@ -322,7 +319,6 @@ function App() {
               </div>
               <div className="highlight-item">
                 <span className="highlight-icon">🛏</span>
-
                 <div>
                   <strong>Refined Comfort</strong>
                   <p>
@@ -336,7 +332,9 @@ function App() {
 
         <section id="gallery" className="section container">
           <div className="section-header text-center mb-6">
-            <p className="section-category">Hotel Showcase</p>
+            <p className="section-category">
+              Hotel Showcase
+            </p>
 
             <h2 className="serif">Photo Gallery</h2>
 
@@ -455,12 +453,12 @@ function App() {
 
           <div className="testimonial mt-4">
             &quot;{config.testimonial.text}&quot;
-
             <span className="testimonial-author">
               {config.testimonial.author}
             </span>
           </div>
         </section>
+
         <section id="contact" className="section container">
           <div className="section-header text-center mb-6">
             <p className="section-category">
@@ -481,173 +479,177 @@ function App() {
 
               <p>
                 Phone:{' '}
-                <a href={`tel:${config.hotel.receptionPhone}`}>
-                  {config.hotel.receptionPhone}
-                </a>
-              </p>
+                <a
+                  href={`tel:${config.hotel.receptionPhone}`}
+                >
+                {config.hotel.receptionPhone}
+              </a>
+            </p>
 
-              <p>
-                Email:{' '}
-                <a href={`mailto:${config.hotel.email}`}>
-                  {config.hotel.email}
-                </a>
-              </p>
-            </div>
+            <p>
+              Email:{' '}
+              <a href={`mailto:${config.hotel.email}`}>
+              {config.hotel.email}
+            </a>
+          </p>
+      </div>
 
-            <div className="contact-info-block">
-              <h3>👔 Hotel Management</h3>
+      <div className="contact-info-block">
+        <h3>👔 Hotel Management</h3>
 
-              {config.hotel.owners.map((owner, index) => (
-                <p key={index}>
-                  {owner.name}:{' '}
-                  <a href={`tel:${owner.phone.replace(/\s+/g, '')}`}>
-                    {owner.phone}
-                  </a>
+        {config.hotel.owners.map((owner, index) => (
+          <p key={index}>
+            {owner.name}:{' '}
+            <a
+              href={`tel:${owner.phone.replace(/\s+/g, '')}`}
+                  >
+            {owner.phone}
+          </a>
                 </p>
               ))}
-            </div >
+    </div >
           </div >
         </section >
 
-        <footer
-          className="footer"
-          role="contentinfo"
+    <footer
+      className="footer"
+      role="contentinfo"
+    >
+      <h3 className="serif mb-4">
+        {config.hotel.name}
+      </h3>
+
+      <p>{config.hotel.address}</p>
+
+      <p>
+        Email: {config.hotel.email} | Reception:{' '}
+        {config.hotel.receptionPhone}
+      </p>
+
+      <p
+        className="mt-4"
+        style={{
+          fontSize: '12px',
+          opacity: 0.5
+        }}
+      >
+        © {new Date().getFullYear()}{' '}
+        {config.hotel.name}. All Rights Reserved.
+
+        <span
+          style={{
+            cursor: 'pointer',
+            marginLeft: '10px'
+          }}
+          onClick={() => setShowAdmin(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              setShowAdmin(true);
+            }
+          }}
         >
-          <h3 className="serif mb-4">
-            {config.hotel.name}
-          </h3>
+          🛡
+        </span>
 
-          <p>{config.hotel.address}</p>
-
-          <p>
-            Email: {config.hotel.email} | Reception:{' '}
-            {config.hotel.receptionPhone}
-          </p>
-
-          <p
-            className="mt-4"
-            style={{
-              fontSize: '12px',
-              opacity: 0.5
-            }}
-          >
-            © {new Date().getFullYear()}{' '}
-            {config.hotel.name}. All Rights Reserved.
-
-            <span
-              style={{
-                cursor: 'pointer',
-                marginLeft: '10px'
-              }}
-              onClick={() => setShowAdmin(true)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  setShowAdmin(true);
-                }
-              }}
-            >
-              🛡
-            </span>
-
-            <span
-              style={{
-                cursor: 'pointer',
-                marginLeft: '10px',
-                opacity: 0.4
-              }}
-              onClick={() => {
-                window.location.href = '/reception';
-              }}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  window.location.href = '/reception';
-                }
-              }}
-            >
-              Reception
-            </span>
-          </p>
-
-          <FooterLegalLinks
-            onOpenLegal={openLegal}
-          />
-        </footer>
-      </div >
-
-      {activeImage && (
-        <div
-          className="lightbox-overlay"
-          onClick={() => setActiveImage(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-label={activeImage.title}
+        <span
+          style={{
+            cursor: 'pointer',
+            marginLeft: '10px',
+            opacity: 0.4
+          }}
+          onClick={() => {
+            window.location.href = '/reception';
+          }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              window.location.href = '/reception';
+            }
+          }}
         >
-          <div
-            className="lightbox-content"
-            onClick={(event) => {
-              event.stopPropagation();
-            }}
-          >
-            <button
-              type="button"
-              className="lightbox-close"
-              onClick={() => setActiveImage(null)}
-              aria-label="Close image preview"
-            >
-              ×
-            </button>
+          Reception
+        </span>
+      </p>
 
-            <img
-              src={activeImage.url}
-              alt={activeImage.title}
-              className="lightbox-img"
-            />
-            <div className="lightbox-caption">
-              <h3>{activeImage.title}</h3>
-              <p>{activeImage.caption}</p>
-            </div>
-          </div>
-        </div>
-      )
-      }
-
-      {
-        selectedRoom && user && (
-          <BookingModal
-            room={selectedRoom}
-            user={user}
-            onClose={() => setSelectedRoom(null)}
-          />
-        )
-      }
-
-      {
-        showSignupModal && (
-          <SignupModal
-            onComplete={handleSignupComplete}
-            onOpenLegal={openLegal}
-          />
-        )
-      }
-
-      <CookieConsentBanner
+      <FooterLegalLinks
         onOpenLegal={openLegal}
       />
+    </footer>
+      </div >
 
-      {
-        activeLegalPage && (
-          <LegalPageViewer
-            pageKey={activeLegalPage}
-            onClose={closeLegal}
+    { activeImage && (
+      <div
+        className="lightbox-overlay"
+        onClick={() => setActiveImage(null)}
+        role="dialog"
+        aria-modal="true"
+        aria-label={activeImage.title}
+      >
+        <div
+          className="lightbox-content"
+          onClick={(event) => {
+            event.stopPropagation();
+          }}
+        >
+          <button
+            type="button"
+            className="lightbox-close"
+            onClick={() => setActiveImage(null)}
+            aria-label="Close image preview"
+          >
+            ×
+          </button>
+          <img
+            src={activeImage.url}
+            alt={activeImage.title}
+            className="lightbox-img"
           />
-        )
-      }
 
-      <LiveRoomTracker />
+          <div className="lightbox-caption">
+            <h3>{activeImage.title}</h3>
+            <p>{activeImage.caption}</p>
+          </div>
+        </div>
+      </div>
+    )
+}
+
+{
+  selectedRoom && user && (
+    <BookingModal
+      room={selectedRoom}
+      user={user}
+      onClose={() => setSelectedRoom(null)}
+    />
+  )
+}
+
+{
+  showSignupModal && (
+    <SignupModal
+      onComplete={handleSignupComplete}
+      onOpenLegal={openLegal}
+    />
+  )
+}
+
+<CookieConsentBanner
+  onOpenLegal={openLegal}
+/>
+
+{
+  activeLegalPage && (
+    <LegalPageViewer
+      pageKey={activeLegalPage}
+      onClose={closeLegal}
+    />
+  )
+}
+
+<LiveRoomTracker />
     </>
   );
 }

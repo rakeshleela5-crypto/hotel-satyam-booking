@@ -1,111 +1,103 @@
-// BACKEND: Replace mock implementations with real API calls
-// const BASE_URL = "https://api.yourdomain.workers.dev";
-// return fetch(${BASE_URL}/availability?...).then(r => r.json());
+const API_BASE_URL = '';
+
+async function request(path, options = {}) {
+  const response = await fetch(`${ API_BASE_URL }${ path }`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    }
+  });
+
+  let data = null;
+
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      data?.error || `Request failed with status ${ response.status }`
+    );
+  }
+
+  return data;
+}
 
 export async function bookRoom(payload) {
-  const response = await fetch('/api/bookRoom', {
+  return request('/api/bookings/create', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to book room');
-  }
-
-  return response.json();
 }
 
-export async function joinWaitlist(payload) {
-  const response = await fetch('/api/joinWaitlist', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to join waitlist');
-  }
-
-  return response.json();
-}
-
-export async function signupUser(payload) {
-  const response = await fetch('/api/signup', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to signup');
-  }
-
-  return response.json();
-}
-
-// RAZORPAY API INTEGRATION
 export async function createOrder(payload) {
-  const response = await fetch('/api/createOrder', {
+  return request('/api/payments/create-order', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to create order');
-  }
-
-  return response.json();
 }
 
 export async function verifyPayment(payload) {
-  const response = await fetch('/api/verifyPayment', {
+  return request('/api/payments/verify', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
+}
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to verify payment');
-  }
+export async function getRooms() {
+  return request('/api/rooms', {
+    method: 'GET'
+  });
+}
 
-  return response.json();
+export async function checkAvailability(checkIn, checkOut, roomType) {
+  const params = new URLSearchParams({
+    checkIn,
+    checkOut,
+    roomType
+  });
+
+  return request(`/api/availability?${ params.toString() }`, {
+    method: 'GET'
+  });
+}
+
+export async function cancelBooking(
+  bookingId,
+  payload = {}
+) {
+  return request(`/api/bookings/${ bookingId }/cancel`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function adminLogin(password) {
+  return request('/api/admin/login', {
+    method: 'POST',
+    body: JSON.stringify({ password })
+  });
+}
+
+export async function getAdminBookings() {
+  return request('/api/admin/bookings', {
+    method: 'GET'
+  });
+}
+
+export async function joinWaitlist() {
+  throw new Error(
+    'Waitlist is not available yet because the current server.js has no waitlist route.'
+  );
+}
+
+export async function signupUser(payload) {
+  return payload;
 }
 
 export async function apiCall(url, options = {}) {
-  // Build URL
-  const fullUrl = new URL(url, window.location.origin);
-
-  // If it's an admin API call, attach token if available
-  if (fullUrl.pathname.startsWith('/api/admin/')) {
-    const token = sessionStorage.getItem('adminToken');
-    if (token) {
-      fullUrl.searchParams.set('token', token);
-    }
-  }
-
-  // Ensure JSON headers if body is provided
-  if (options.body && typeof options.body === 'string') {
-    options.headers = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
-  }
-
-  const response = await fetch(fullUrl.toString(), options);
-  
-  try {
-    return await response.json();
-  } catch (err) {
-    if (!response.ok) {
-      throw new Error('API Call Failed');
-    }
-    return null;
-  }
+  return request(url, options);
 }

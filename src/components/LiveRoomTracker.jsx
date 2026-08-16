@@ -1,63 +1,162 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export function LiveRoomTracker() {
-  const [roomData, setRoomData] = useState({ total: '--', booked: '--', available: '--' });
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [roomData, setRoomData] = useState({
+    total: '--',
+    booked: '--',
+    available: '--'
+  });
+
+  const [currentTime, setCurrentTime] =
+    useState(new Date());
 
   useEffect(() => {
-    // Timer for live time
-    const timerId = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+    let isMounted = true;
 
-    // SSE connection for live rooms
-    const liveRoomsSource = new EventSource('/api/live-rooms');
-
-    liveRoomsSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        setRoomData(data);
-      } catch (error) {
-        console.error("Error parsing live stream data:", error);
+    const updateTime = () => {
+      if (isMounted) {
+        setCurrentTime(new Date());
       }
     };
 
-    liveRoomsSource.onerror = (err) => {
-      console.error("SSE Connection failed.", err);
+    const loadRoomStatus = async () => {
+      try {
+        const response = await fetch('/api/rooms');
+
+        if (!response.ok) {
+          throw new Error(
+            `Room request failed with status ${ response.status }`
+          );
+}
+
+const data = await response.json();
+const rooms = Array.isArray(data.rooms)
+  ? data.rooms
+  : [];
+
+const total = rooms.reduce((sum, roomType) => {
+  const roomCount = Number(
+    roomType.room_count ||
+    roomType.total_rooms ||
+    roomType.total ||
+    0
+  );
+
+  return sum + roomCount;
+}, 0);
+
+if (isMounted) {
+  setRoomData({
+    total: total || rooms.length,
+    booked: '--',
+    available: rooms.length
+      ? rooms.length
+      : '--'
+  });
+}
+      } catch (error) {
+  console.error(
+    'Could not load room status:',
+    error
+  );
+
+  if (isMounted) {
+    setRoomData({
+      total: '--',
+      booked: '--',
+      available: '--'
+    });
+  }
+}
     };
 
-    return () => {
-      clearInterval(timerId);
-      liveRoomsSource.close();
-    };
+updateTime();
+loadRoomStatus();
+
+const timerId = setInterval(updateTime, 1000);
+const roomRefreshId = setInterval(
+  loadRoomStatus,
+  60000
+);
+
+return () => {
+  isMounted = false;
+  clearInterval(timerId);
+  clearInterval(roomRefreshId);
+};
   }, []);
 
-  const timeString = currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+const timeString = currentTime.toLocaleTimeString(
+  'en-IN',
+  {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  }
+);
 
-  return (
-    <div className="live-ticker-bar">
-      <div className="ticker-wrapper">
-        <div className="ticker-content">
-          <span className="live-indicator-small"></span>
-          <span className="ticker-title">LIVE STATUS &bull; {timeString}</span>
-          <span className="ticker-divider">|</span>
-          <span className="ticker-item">Total Rooms: <strong>{roomData.total}</strong></span>
-          <span className="ticker-divider">|</span>
-          <span className="ticker-item booked">Booked: <strong>{roomData.booked}</strong></span>
-          <span className="ticker-divider">|</span>
-          <span className="ticker-item available">Available: <strong>{roomData.available}</strong></span>
-          
-          {/* Duplicate content for seamless scrolling */}
-          <span style={{ marginLeft: '50px' }} className="live-indicator-small"></span>
-          <span className="ticker-title">LIVE STATUS &bull; {timeString}</span>
-          <span className="ticker-divider">|</span>
-          <span className="ticker-item">Total Rooms: <strong>{roomData.total}</strong></span>
-          <span className="ticker-divider">|</span>
-          <span className="ticker-item booked">Booked: <strong>{roomData.booked}</strong></span>
-          <span className="ticker-divider">|</span>
-          <span className="ticker-item available">Available: <strong>{roomData.available}</strong></span>
-        </div>
+return (
+  <div className="live-ticker-bar">
+    <div className="ticker-wrapper">
+      <div className="ticker-content">
+        <span className="live-indicator-small" />
+
+        <span className="ticker-title">
+          LIVE STATUS &bull; {timeString}
+        </span>
+
+        <span className="ticker-divider">|</span>
+
+        <span className="ticker-item">
+          Total Rooms:{' '}
+          <strong>{roomData.total}</strong>
+        </span>
+
+        <span className="ticker-divider">|</span>
+
+        <span className="ticker-item booked">
+          Booked:{' '}
+          <strong>{roomData.booked}</strong>
+        </span>
+
+        <span className="ticker-divider">|</span>
+
+        <span className="ticker-item available">
+          Available:{' '}
+          <strong>{roomData.available}</strong>
+        </span>
+
+        <span
+          style={{ marginLeft: '50px' }}
+          className="live-indicator-small"
+        />
+
+        <span className="ticker-title">
+          LIVE STATUS &bull; {timeString}
+        </span>
+
+        <span className="ticker-divider">|</span>
+
+        <span className="ticker-item">
+          Total Rooms:{' '}
+          <strong>{roomData.total}</strong>
+        </span>
+
+        <span className="ticker-divider">|</span>
+
+        <span className="ticker-item booked">
+          Booked:{' '}
+          <strong>{roomData.booked}</strong>
+        </span>
+
+        <span className="ticker-divider">|</span>
+
+        <span className="ticker-item available">
+          Available:{' '}
+          <strong>{roomData.available}</strong>
+        </span>
       </div>
     </div>
-  );
+  </div>
+);
 }

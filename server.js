@@ -65,19 +65,6 @@ async function verifyRazorpaySignature(orderId, paymentId, signature, secret) {
   return expected === signature;
 }
 
-async function getRoomByType(db, roomTypeId) {
-  return await db
-    .prepare(`
-      SELECT r.room_id, r.room_type_id, rt.room_type_name, rt.base_price, rt.capacity, rt.description
-      FROM rooms r
-      JOIN room_types rt ON rt.room_type_id = r.room_type_id
-      WHERE r.room_type_id = ? AND r.room_status = 'available'
-      LIMIT 1
-    `)
-    .bind(roomTypeId)
-    .first();
-}
-
 async function ensureUser(db, { name, email, phone }) {
   let existing = null;
   if (email) {
@@ -103,20 +90,25 @@ async function checkAvailability(db, roomTypeId, checkIn, checkOut) {
   const dates = expandDates(checkIn, checkOut);
   if (!dates.length) return { available: false, room: null };
 
-  const room = await getRoomByType(db, roomTypeId);
+  const room = await db.prepare(`
+    SELECT r.room_id, r.room_type_id, rt.room_type_name, rt.base_price, rt.capacity, rt.description
+    FROM rooms r
+    JOIN room_types rt ON rt.room_type_id = r.room_type_id
+    WHERE r.room_type_id = ? 
+      AND r.room_status = 'available'
+      AND r.room_id NOT IN (
+        SELECT room_id
+        FROM bookings
+        WHERE booking_status IN ('pending', 'confirmed', 'checked_in')
+          AND date(check_in) < date(?) 
+          AND date(check_out) > date(?)
+      )
+    LIMIT 1
+  `).bind(roomTypeId, checkOut, checkIn).first();
+
   if (!room) return { available: false, room: null };
 
-  const booked = await db.prepare(`
-    SELECT COUNT(*) as cnt
-    FROM bookings
-    WHERE room_id = ?
-    AND booking_status IN ('pending', 'confirmed', 'checked_in')
-    AND ((date(check_in) < date(?) AND date(check_out) > date(?))
-      OR (date(check_in) >= date(?) AND date(check_in) < date(?)))
-  `).bind(room.room_id, checkOut, checkIn, checkIn, checkOut).first();
-
-  const count = booked?.cnt || 0;
-  return { available: count === 0, room };
+  return { available: true, room };
 }
 
 app.get('/api/rooms', async (c) => {

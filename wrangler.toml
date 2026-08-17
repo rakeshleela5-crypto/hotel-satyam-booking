@@ -12,6 +12,9 @@ binding = "DB"
 database_name = "hotelsatyamdatabase"
 database_id = "a1475244-fe5a-4e91-b223-0de557ef455b"
 
+[ai]
+binding = "AI"
+
 [vars]
 NODE_ENV = "production"
 HOTEL_NAME = "Satyam Residency"

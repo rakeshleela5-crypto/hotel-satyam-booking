@@ -88,16 +88,120 @@ export async function getAdminBookings() {
   });
 }
 
-export async function joinWaitlist() {
-  throw new Error(
-    'Waitlist is not available yet because the current server.js has no waitlist route.'
-  );
+export async function joinWaitlist(payload) {
+  return request('/api/waitlist', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
 }
 
 export async function signupUser(payload) {
   return payload;
 }
 
+export async function blockRoomDates(payload) {
+  return request('/api/admin/block-room', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function getBlockedDates() {
+  return request('/api/admin/blocked-dates', {
+    method: 'GET'
+  });
+}
+
+export async function unblockRoomDate(bookingId) {
+  return request('/api/admin/unblock-room', {
+    method: 'POST',
+    body: JSON.stringify({ bookingId })
+  });
+}
+
+export async function getAdminRoomsList() {
+  return request('/api/admin/rooms-list', {
+    method: 'GET'
+  });
+}
+
 export async function apiCall(url, options = {}) {
   return request(url, options);
 }
+
+// AI Automation Client Helpers
+export async function parseBookingIntent(message) {
+  return request('/api/ai/parse-booking-intent', {
+    method: 'POST',
+    body: JSON.stringify({ message })
+  });
+}
+
+export async function verifyIdOcr(payload) {
+  return request('/api/ai/ocr-id-verification', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function submitPreCheckin(payload) {
+  return request('/api/ai/pre-checkin', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function conciergeChat(payload) {
+  return request('/api/ai/concierge-chat', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function dispatchServiceRequest(payload) {
+  return request('/api/ai/service-request', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function getServiceTickets() {
+  return request('/api/ai/service-tickets', {
+    method: 'GET'
+  });
+}
+
+export async function updateServiceTicketStatus(ticketId, status) {
+  return request('/api/ai/service-tickets/update-status', {
+    method: 'POST',
+    body: JSON.stringify({ ticketId, status })
+  });
+}
+
+export async function generateItinerary(payload) {
+  return request('/api/ai/generate-itinerary', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function getDynamicPricing(checkIn) {
+  const query = checkIn ? `?checkIn=${checkIn}` : '';
+  return request(`/api/ai/dynamic-pricing${query}`, {
+    method: 'GET'
+  });
+}
+
+export async function generateReviewResponse(payload) {
+  return request('/api/ai/generate-review-response', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function submitGuestFeedback(payload) {
+  return request('/api/ai/submit-feedback', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}

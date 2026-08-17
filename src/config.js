@@ -50,22 +50,70 @@ export const config = {
       id: "standard",
       name: "Standard Room",
       price: 1499,
-      description: "Comfortable room for two with premium bedding and basic amenities.",
-      amenities: ["Free Wi-Fi", "AC", "TV", "Hot Water"]
+      bedType: "Queen / Twin Beds",
+      occupancy: { adults: 2, children: 1, text: "2 Adults, 1 Child" },
+      cancellationPolicy: "Free cancellation up to 24 hrs before check-in",
+      description: "Comfortable, beautifully furnished room for two with plush bedding, climate control, and essential modern comforts.",
+      photos: [
+        "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80",
+        "/satyam-residency-facade.jpg"
+      ],
+      amenities: ["Free Wi-Fi", "AC", "TV", "Geyser/Hot Water", "Room Service"],
+      keyAmenities: [
+        { icon: "📶", label: "Free Wi-Fi" },
+        { icon: "❄️", label: "AC" },
+        { icon: "🚿", label: "Geyser / Hot Water" },
+        { icon: "🛎️", label: "Room Service" },
+        { icon: "📺", label: "HD TV" }
+      ]
     },
     {
       id: "deluxe",
       name: "Deluxe Room",
       price: 2499,
-      description: "Spacious room with city view, extra seating area, and upgraded amenities.",
-      amenities: ["Free Wi-Fi", "AC", "Smart TV", "Mini Fridge", "24/7 Room Service"]
+      bedType: "King / Queen Plush Bed",
+      occupancy: { adults: 2, children: 1, text: "2 Adults, 1 Child" },
+      cancellationPolicy: "Free cancellation up to 24 hrs before check-in",
+      description: "Spacious luxury room with city views, ambient mood lighting, upgraded furnishings, and 24/7 dedicated room service.",
+      photos: [
+        "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80"
+      ],
+      amenities: ["Free Wi-Fi", "AC", "Smart TV", "Mini Fridge", "24/7 Room Service", "Geyser/Hot Water"],
+      keyAmenities: [
+        { icon: "📶", label: "High-Speed Wi-Fi" },
+        { icon: "❄️", label: "Climate Control AC" },
+        { icon: "🚿", label: "Geyser / 24/7 Hot Water" },
+        { icon: "🛎️", label: "24/7 Room Service" },
+        { icon: "📺", label: "Smart TV" },
+        { icon: "🧊", label: "Mini Fridge" }
+      ]
     },
     {
       id: "suite",
       name: "Executive Suite",
       price: 4999,
-      description: "Luxury suite with a separate living area, king-size bed, and premium services.",
-      amenities: ["Free Wi-Fi", "AC", "Smart TV", "Mini Fridge", "Bathtub", "Lounge Access", "Breakfast Included"]
+      bedType: "Grand King Size Bed",
+      occupancy: { adults: 3, children: 1, text: "3 Adults, 1 Child" },
+      cancellationPolicy: "Free cancellation up to 24 hrs before check-in",
+      description: "Our signature luxury suite featuring a separate living lounge, private workspace, bathtub, complimentary breakfast, and VIP lounge access.",
+      photos: [
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=800&q=80"
+      ],
+      amenities: ["Free Wi-Fi", "AC", "Smart TV", "Mini Fridge", "Bathtub", "Lounge Access", "Breakfast Included", "24/7 Room Service", "Geyser/Hot Water"],
+      keyAmenities: [
+        { icon: "📶", label: "Ultra High-Speed Wi-Fi" },
+        { icon: "❄️", label: "Dual AC" },
+        { icon: "🚿", label: "Geyser & Bathtub" },
+        { icon: "🛎️", label: "24/7 Butler Service" },
+        { icon: "📺", label: "55\" Smart TV" },
+        { icon: "🍳", label: "Breakfast Included" },
+        { icon: "🛋️", label: "Private Living Lounge" }
+      ]
     }
   ],
   reviews: [

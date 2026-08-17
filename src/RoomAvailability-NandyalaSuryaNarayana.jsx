@@ -7,9 +7,15 @@ export function RoomAvailability() {
         const today = new Date().toISOString().slice(0, 10);
 
         async function load() {
-            const res = await fetch(`/api/availability?date=${today}`);
-            const data = await res.json();
-            setAvailability(data);
+            try {
+                const res = await fetch(`/api/room-counts?date=${today}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setAvailability(Array.isArray(data) ? data : []);
+                }
+            } catch (err) {
+                console.error("Failed to load availability", err);
+            }
         }
 
         load();

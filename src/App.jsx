@@ -9,6 +9,10 @@ import { config } from './config';
 import { RoomCard } from './components/RoomCard';
 import { BookingModal } from './components/BookingModal';
 import { SignupModal } from './components/SignupModal';
+import { AiBookingAgent } from './components/AiBookingAgent';
+import { AiDigitalPreCheckin } from './components/AiDigitalPreCheckin';
+import { AiConciergeModal } from './components/AiConciergeModal';
+import { AiSmartFeedbackModal } from './components/AiSmartFeedbackModal';
 
 import {
   LegalPageViewer,
@@ -17,6 +21,7 @@ import {
 } from './components/LegalPages';
 
 import { LiveRoomTracker } from './components/LiveRoomTracker';
+import { StickyMobileBookBar } from './components/StickyMobileBookBar';
 import './index.css';
 
 const AdminRoute = lazy(() =>
@@ -33,6 +38,12 @@ function App() {
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [activeImage, setActiveImage] = useState(null);
   const [showAdmin, setShowAdmin] = useState(false);
+
+  // AI Automation Modal States
+  const [showAiPreCheckin, setShowAiPreCheckin] = useState(false);
+  const [showAiConcierge, setShowAiConcierge] = useState(false);
+  const [showAiFeedback, setShowAiFeedback] = useState(false);
+  const [aiInitialBookingData, setAiInitialBookingData] = useState(null);
 
   useEffect(() => {
     try {
@@ -80,6 +91,20 @@ function App() {
 
   const handleRoomBooking = (room) => {
     setSelectedRoom(room);
+    setAiInitialBookingData(null);
+
+    if (!user) {
+      setShowSignupModal(true);
+    }
+  };
+
+  const handleAiBookingSelect = ({ room, checkIn, checkOut, guests, specialRequests }) => {
+    setSelectedRoom(room);
+    setAiInitialBookingData({
+      dates: { checkIn, checkOut },
+      guests,
+      specialRequests
+    });
 
     if (!user) {
       setShowSignupModal(true);
@@ -158,13 +183,34 @@ function App() {
             </a>
 
             <a
-              href="#about"
+              href="#booking"
               onClick={(event) => {
                 event.preventDefault();
-                scrollToSection('about');
+                scrollToSection('booking');
               }}
             >
-              About
+              Rooms
+            </a>
+
+            <a
+              href="#concierge"
+              onClick={(event) => {
+                event.preventDefault();
+                setShowAiConcierge(true);
+              }}
+              style={{ color: 'var(--primary-color)', fontWeight: '600' }}
+            >
+              ✨ AI Concierge
+            </a>
+
+            <a
+              href="#precheckin"
+              onClick={(event) => {
+                event.preventDefault();
+                setShowAiPreCheckin(true);
+              }}
+            >
+              🪪 Fast-Track ID
             </a>
 
             <a
@@ -175,15 +221,6 @@ function App() {
               }}
             >
               Gallery
-            </a>
-            <a
-              href="#booking"
-              onClick={(event) => {
-                event.preventDefault();
-                scrollToSection('booking');
-              }}
-            >
-              Rooms
             </a>
 
             <a
@@ -550,7 +587,43 @@ function App() {
             }
           }}
         >
-          🛡
+          🛡 Admin
+        </span>
+
+        <span
+          style={{
+            cursor: 'pointer',
+            marginLeft: '10px',
+            color: 'var(--primary-color)'
+          }}
+          onClick={() => setShowAiFeedback(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              setShowAiFeedback(true);
+            }
+          }}
+        >
+          🌟 Rate Stay
+        </span>
+
+        <span
+          style={{
+            cursor: 'pointer',
+            marginLeft: '10px',
+            opacity: 0.8
+          }}
+          onClick={() => setShowAiPreCheckin(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              setShowAiPreCheckin(true);
+            }
+          }}
+        >
+          🪪 Fast-Track ID
         </span>
 
         <span
@@ -578,9 +651,9 @@ function App() {
         onOpenLegal={openLegal}
       />
     </footer>
-      </div >
+      </div>
 
-    { activeImage && (
+    {activeImage && (
       <div
         className="lightbox-overlay"
         onClick={() => setActiveImage(null)}
@@ -614,42 +687,57 @@ function App() {
           </div>
         </div>
       </div>
-    )
-}
+    )}
 
-{
-  selectedRoom && user && (
-    <BookingModal
-      room={selectedRoom}
-      user={user}
-      onClose={() => setSelectedRoom(null)}
-    />
-  )
-}
+    {selectedRoom && user && (
+      <BookingModal
+        room={selectedRoom}
+        user={user}
+        initialDates={aiInitialBookingData?.dates}
+        initialGuests={aiInitialBookingData?.guests}
+        initialSpecialRequests={aiInitialBookingData?.specialRequests}
+        onClose={() => {
+          setSelectedRoom(null);
+          setAiInitialBookingData(null);
+        }}
+      />
+    )}
 
-{
-  showSignupModal && (
-    <SignupModal
-      onComplete={handleSignupComplete}
+    {showSignupModal && (
+      <SignupModal
+        onComplete={handleSignupComplete}
+        onOpenLegal={openLegal}
+      />
+    )}
+
+    <CookieConsentBanner
       onOpenLegal={openLegal}
     />
-  )
-}
 
-<CookieConsentBanner
-  onOpenLegal={openLegal}
-/>
+    {activeLegalPage && (
+      <LegalPageViewer
+        pageKey={activeLegalPage}
+        onClose={closeLegal}
+      />
+    )}
 
-{
-  activeLegalPage && (
-    <LegalPageViewer
-      pageKey={activeLegalPage}
-      onClose={closeLegal}
-    />
-  )
-}
+    {/* AI Automations Modals & Floating Agent */}
+    <AiBookingAgent onSelectBooking={handleAiBookingSelect} />
 
-<LiveRoomTracker />
+    {showAiPreCheckin && (
+      <AiDigitalPreCheckin onClose={() => setShowAiPreCheckin(false)} />
+    )}
+
+    {showAiConcierge && (
+      <AiConciergeModal onClose={() => setShowAiConcierge(false)} />
+    )}
+
+    {showAiFeedback && (
+      <AiSmartFeedbackModal onClose={() => setShowAiFeedback(false)} />
+    )}
+
+    <LiveRoomTracker />
+    <StickyMobileBookBar onSelectDates={() => scrollToSection('booking')} />
     </>
   );
 }

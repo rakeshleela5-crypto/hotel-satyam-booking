@@ -99,10 +99,16 @@ export function RoomCard({ room, onBook }) {
           </div>
         </div>
 
-        {/* Cancellation Policy Tag */}
-        <div className="cancellation-policy-tag">
-          <span className="cancellation-icon">✓</span>
-          <span>{room.cancellationPolicy || 'Free cancellation up to 24 hrs before check-in'}</span>
+        {/* Cancellation Policy Tag & Direct Booking Perks */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', margin: '8px 0' }}>
+          <div className="cancellation-policy-tag">
+            <span className="cancellation-icon">✓</span>
+            <span>{room.cancellationPolicy || 'Free cancellation up to 24 hrs before check-in'}</span>
+          </div>
+          <div style={{ background: 'rgba(76, 175, 80, 0.1)', border: '1px solid rgba(76, 175, 80, 0.3)', borderRadius: '6px', padding: '6px 10px', fontSize: '11px', color: '#81c784', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>🛡️ <strong>Direct Book Perk:</strong> Free Daily Breakfast + ₹200 Dining Credit</span>
+            <strong style={{ color: '#4CAF50' }}>SAVE ₹350+</strong>
+          </div>
         </div>
 
         {/* Description */}

@@ -15,9 +15,14 @@ database_id = "a1475244-fe5a-4e91-b223-0de557ef455b"
 [ai]
 binding = "AI"
 
+[triggers]
+crons = ["0 2 * * *"]
+
 [vars]
 NODE_ENV = "production"
 HOTEL_NAME = "Satyam Residency"
+HOTEL_PHONE = "+918984938388"
 CURRENCY = "INR"
+WHATSAPP_VERIFY_TOKEN = "satyam_concierge_webhook_2026"
 
 # Use wrangler secret put ADMIN_PASSWORD instead of storing it here

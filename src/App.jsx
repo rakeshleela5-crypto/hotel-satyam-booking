@@ -13,6 +13,7 @@ import { AiBookingAgent } from './components/AiBookingAgent';
 import { AiDigitalPreCheckin } from './components/AiDigitalPreCheckin';
 import { AiConciergeModal } from './components/AiConciergeModal';
 import { AiSmartFeedbackModal } from './components/AiSmartFeedbackModal';
+import { AiPreArrivalUpsellModal } from './components/AiPreArrivalUpsellModal';
 
 import {
   LegalPageViewer,
@@ -43,6 +44,7 @@ function App() {
   const [showAiPreCheckin, setShowAiPreCheckin] = useState(false);
   const [showAiConcierge, setShowAiConcierge] = useState(false);
   const [showAiFeedback, setShowAiFeedback] = useState(false);
+  const [showAiUpsell, setShowAiUpsell] = useState(false);
   const [aiInitialBookingData, setAiInitialBookingData] = useState(null);
 
   useEffect(() => {
@@ -211,6 +213,27 @@ function App() {
               }}
             >
               🪪 Fast-Track ID
+            </a>
+
+            <a
+              href="#upsell"
+              onClick={(event) => {
+                event.preventDefault();
+                setShowAiUpsell(true);
+              }}
+              style={{ color: '#D4AF37' }}
+            >
+              👑 Pre-Arrival Deals
+            </a>
+
+            <a
+              href="#feedback"
+              onClick={(event) => {
+                event.preventDefault();
+                setShowAiFeedback(true);
+              }}
+            >
+              🌟 Review &amp; Perks
             </a>
 
             <a
@@ -447,6 +470,56 @@ function App() {
               Choose your ideal room and book instantly with secure
               online options.
             </p>
+          </div>
+
+          {/* Live OTA Price Guard & Direct Booking Value Banner */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.12) 0%, rgba(201, 168, 76, 0.12) 100%)',
+              border: '1px solid rgba(201, 168, 76, 0.4)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              marginBottom: '24px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px'
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '18px' }}>🛡️</span>
+                <strong style={{ color: 'var(--primary-color)', fontSize: '15px' }}>
+                  Direct Booking Rate Parity &amp; Price Guard Active
+                </strong>
+                <span style={{ background: '#4CAF50', color: '#000', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                  SAVE UP TO ₹991
+                </span>
+              </div>
+              <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ccc' }}>
+                Booking directly guarantees lowest price vs MakeMyTrip &amp; Agoda + Includes <strong>Free Odia Buffet Breakfast</strong>, <strong>₹200 Dining Credit</strong> &amp; <strong>Priority Check-in</strong>.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                className="btn-small-primary"
+                onClick={() => setShowAiUpsell(true)}
+                style={{ fontSize: '12px', padding: '6px 12px' }}
+              >
+                👑 Pre-Arrival Deals
+              </button>
+              <button
+                type="button"
+                className="btn-small-secondary"
+                onClick={() => setShowAiConcierge(true)}
+                style={{ fontSize: '12px', padding: '6px 12px' }}
+              >
+                ✨ AI Concierge
+              </button>
+            </div>
           </div>
 
           <div className="flex-column">
@@ -734,6 +807,14 @@ function App() {
 
     {showAiFeedback && (
       <AiSmartFeedbackModal onClose={() => setShowAiFeedback(false)} />
+    )}
+
+    {showAiUpsell && (
+      <AiPreArrivalUpsellModal
+        bookingCode={user?.bookingCode || 'SR-8920'}
+        roomType={selectedRoom?.name || 'Standard Room'}
+        onClose={() => setShowAiUpsell(false)}
+      />
     )}
 
     <LiveRoomTracker />

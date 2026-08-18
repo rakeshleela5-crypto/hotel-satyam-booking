@@ -204,4 +204,44 @@ export async function submitGuestFeedback(payload) {
     method: 'POST',
     body: JSON.stringify(payload)
   });
+}
+
+export async function assessBookingRisk(payload) {
+  return request('/api/ai/risk-assessment', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function getAutoReleaseScan() {
+  return request('/api/ai/auto-release-scan', {
+    method: 'GET'
+  });
+}
+
+export async function getOtaRateParity(checkIn) {
+  const query = checkIn ? `?checkIn=${checkIn}` : '';
+  return request(`/api/ai/ota-rate-parity${query}`, {
+    method: 'GET'
+  });
+}
+
+export async function getPreArrivalUpsells(payload) {
+  return request('/api/ai/pre-arrival-upsell', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function acceptPreArrivalUpsell(payload) {
+  return request('/api/ai/accept-upsell', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function getAdminFeedbacks() {
+  return request('/api/ai/feedbacks', {
+    method: 'GET'
+  });
 }

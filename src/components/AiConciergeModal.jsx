@@ -78,24 +78,47 @@ export function AiConciergeModal({ onClose, defaultTab = 'chat' }) {
           type: 'success',
           text: res.message
         });
-        setActiveTickets((prev) => [
-          {
-            id: res.ticketId,
-            room: roomNumber,
-            department: res.department,
-            text: serviceText,
-            priority: res.priority,
-            eta: res.eta,
-            status: 'Dispatched to Staff'
-          },
-          ...prev
-        ]);
+
+        const newTickets = (res.tickets || []).map(t => ({
+          id: t.id,
+          room: t.room_number || roomNumber,
+          department: t.department,
+          text: t.request_text,
+          priority: t.priority,
+          eta: t.etaMinutes,
+          assignedTo: t.assigned_to,
+          status: 'Dispatched to Staff',
+          whatsappUrl: res.whatsappDispatchUrl
+        }));
+
+        if (newTickets.length > 0) {
+          setActiveTickets((prev) => [...newTickets, ...prev]);
+        } else {
+          setActiveTickets((prev) => [
+            {
+              id: res.ticketId,
+              room: roomNumber,
+              department: res.department,
+              text: serviceText,
+              priority: res.priority,
+              eta: res.eta,
+              status: 'Dispatched to Staff'
+            },
+            ...prev
+          ]);
+        }
         setServiceText('');
       } else {
-        setServiceMessage({ type: 'error', text: res.error || 'Failed to dispatch request.' });
+        setServiceMessage({
+          type: 'error',
+          text: res.error || 'Failed to dispatch request.'
+        });
       }
-    } catch (err) {
-      setServiceMessage({ type: 'error', text: err?.message || 'Failed to communicate with service team.' });
+    } catch {
+      setServiceMessage({
+        type: 'error',
+        text: 'Error connecting to Staff Dispatch system.'
+      });
     } finally {
       setServiceLoading(false);
     }

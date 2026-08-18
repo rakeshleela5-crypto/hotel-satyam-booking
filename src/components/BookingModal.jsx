@@ -22,6 +22,7 @@ export function BookingModal({ room, onClose, initialDates, initialGuests, initi
   const [checkOut, setCheckOut] = useState(initialDates?.checkOut || defaultCheckOutStr);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [guests, setGuests] = useState(String(initialGuests || '2'));
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -238,21 +239,28 @@ export function BookingModal({ room, onClose, initialDates, initialGuests, initi
       >
         <div
           style={{
-            background: '#fff',
+            backgroundColor: 'var(--background-color)',
+            backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(201, 168, 76, 0.10), transparent 70%), linear-gradient(to bottom, rgba(0,0,0,0.64), rgba(0,0,0,0.82)), url("/hotel-bg.jpg")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
             minHeight: '100vh',
             width: '100%',
             position: 'absolute',
             top: 0,
-            left: 0
+            left: 0,
+            color: 'var(--text-primary)',
+            paddingBottom: '40px'
           }}
         >
           <PaymentPage
             bookingId={createdBooking?.bookingId}
             bookingCode={createdBooking?.bookingCode}
-            bookingData={{ name, phone, email: '', roomType: room.name || room.id, guests: Number(guests) }}
+            bookingData={{ name, phone, email, roomType: room.name || room.id, guests: Number(guests), checkIn, checkOut }}
             amount={createdBooking?.amount || pricing.total}
             loading={loading}
             onBack={() => setStep(2)}
+            onClose={onClose}
             onSuccess={(res) => {
               if (res.method === 'pay-at-hotel') {
                 setResult({ type: 'success', message: `Booking Confirmed (Pay at Hotel)! ID: ${createdBooking?.bookingCode || createdBooking?.bookingId}` });
@@ -287,6 +295,19 @@ export function BookingModal({ room, onClose, initialDates, initialGuests, initi
           >
             ×
           </button>
+        </div>
+
+        {/* OTA Price Guard Value Banner */}
+        <div style={{ background: 'rgba(76, 175, 80, 0.1)', border: '1px solid #4CAF50', borderRadius: '10px', padding: '10px 14px', marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}>
+          <div>
+            <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>🛡️ Direct Booking OTA Price Guard Active</span>
+            <div style={{ color: '#ccc', fontSize: '11px', marginTop: '2px' }}>
+              Includes <strong>Free Daily Breakfast</strong> + <strong>₹200 F&amp;B Voucher</strong> (Save ₹350+ vs OTAs)
+            </div>
+          </div>
+          <span style={{ background: '#4CAF50', color: '#000', padding: '3px 8px', borderRadius: '4px', fontWeight: 'bold', fontSize: '10px' }}>
+            LOWEST RATE
+          </span>
         </div>
 
         <div className="mb-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px' }}>
@@ -450,7 +471,8 @@ export function BookingModal({ room, onClose, initialDates, initialGuests, initi
                   textAlign: 'center',
                   background: 'rgba(255, 77, 77, 0.1)',
                   padding: '8px',
-                  borderRadius: '6px'
+                  borderRadius: '6px',
+                  border: '1px solid #ff4d4d'
                 }}
               >
                 {dateError}
@@ -477,16 +499,30 @@ export function BookingModal({ room, onClose, initialDates, initialGuests, initi
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Phone Number *</label>
-              <input
-                required
-                type="tel"
-                className="form-input"
-                placeholder="e.g. +91 9876543210"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div className="form-group">
+                <label className="form-label">Phone Number *</label>
+                <input
+                  required
+                  type="tel"
+                  className="form-input"
+                  placeholder="e.g. +91 9876543210"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Email Address *</label>
+                <input
+                  required
+                  type="email"
+                  className="form-input"
+                  placeholder="e.g. guest@gmail.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                />
+              </div>
             </div>
 
             <div className="form-group">

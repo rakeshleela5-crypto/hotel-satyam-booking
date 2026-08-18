@@ -8,7 +8,10 @@ import {
   getServiceTickets,
   updateServiceTicketStatus,
   getDynamicPricing,
-  generateReviewResponse
+  generateReviewResponse,
+  getOtaRateParity,
+  getAutoReleaseScan,
+  getAdminFeedbacks
 } from '../api';
 import createPlotlyComponent from 'react-plotly.js/factory';
 import Plotly from 'plotly.js-basic-dist-min';
@@ -23,6 +26,11 @@ export function AdminDashboard({ onBack }) {
   const [aiTicketsLoading, setAiTicketsLoading] = useState(false);
   const [dynamicPricingData, setDynamicPricingData] = useState(null);
   const [pricingLoading, setPricingLoading] = useState(false);
+  const [otaParityData, setOtaParityData] = useState(null);
+  const [otaParityLoading, setOtaParityLoading] = useState(false);
+  const [autoReleaseData, setAutoReleaseData] = useState(null);
+  const [guestFeedbacks, setGuestFeedbacks] = useState([]);
+  const [feedbacksLoading, setFeedbacksLoading] = useState(false);
 
   // AI Review Responder State
   const [reviewForm, setReviewForm] = useState({
@@ -93,8 +101,44 @@ export function AdminDashboard({ onBack }) {
     fetchRevenueTrend(trendDays);
     fetchAiTickets();
     fetchDynamicPricing();
+    fetchOtaParity();
+    fetchAutoReleaseScan();
+    fetchFeedbacks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const fetchOtaParity = async () => {
+    try {
+      setOtaParityLoading(true);
+      const res = await getOtaRateParity();
+      if (res.success) setOtaParityData(res);
+    } catch (err) {
+      console.warn('Failed to fetch OTA parity:', err);
+    } finally {
+      setOtaParityLoading(false);
+    }
+  };
+
+  const fetchAutoReleaseScan = async () => {
+    try {
+      const res = await getAutoReleaseScan();
+      if (res.success) setAutoReleaseData(res);
+    } catch (err) {
+      console.warn('Failed to fetch auto-release scan:', err);
+    }
+  };
+
+  const fetchFeedbacks = async () => {
+    try {
+      setFeedbacksLoading(true);
+      const res = await getAdminFeedbacks();
+      if (res.success) setGuestFeedbacks(res.feedbacks || []);
+    } catch (err) {
+      console.warn('Failed to fetch feedbacks:', err);
+    } finally {
+      setFeedbacksLoading(false);
+    }
+  };
 
   const fetchAiTickets = async () => {
     try {
@@ -1198,15 +1242,20 @@ export function AdminDashboard({ onBack }) {
       {/* TAB 4: AI OPERATIONS & REVENUE MANAGEMENT */}
       {activeTab === 'ai' && (
         <div className="flex-column gap-4">
-          {/* Section 1: Live Housekeeping & Service Ticket Dispatch */}
+          {/* Section 1: Live Housekeeping & Service Ticket Dispatch (with 15-Min GM Escalation) */}
           <div className="admin-card" style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid var(--border-color)' }}>
             <div className="flex-row justify-between mb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
               <div>
-                <h3 className="serif" style={{ fontSize: '20px', margin: 0 }}>
-                  🛎️ Autonomous Guest Service &amp; Housekeeping Tickets
-                </h3>
-                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-                  Requests parsed via AI Concierge and dispatched to on-duty staff
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h3 className="serif" style={{ fontSize: '20px', margin: 0 }}>
+                    🛎️ Autonomous Front-Desk &amp; Housekeeping Dispatch
+                  </h3>
+                  <span style={{ fontSize: '11px', background: 'rgba(201,168,76,0.15)', color: 'var(--primary-color)', padding: '2px 8px', borderRadius: '6px' }}>
+                    15-Min GM Escalation Guard Active
+                  </span>
+                </div>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
+                  Multi-intent unstructured messages parsed into separate action items and dispatched to on-duty staff
                 </p>
               </div>
               <button
@@ -1229,8 +1278,8 @@ export function AdminDashboard({ onBack }) {
                   <div
                     key={ticket.id}
                     style={{
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: ticket.isEscalatedToGM ? 'rgba(229, 57, 53, 0.08)' : 'rgba(255,255,255,0.03)',
+                      border: ticket.isEscalatedToGM ? '1px solid #e53935' : '1px solid rgba(255,255,255,0.08)',
                       borderRadius: '10px',
                       padding: '12px 16px',
                       display: 'flex',
@@ -1241,7 +1290,7 @@ export function AdminDashboard({ onBack }) {
                     }}
                   >
                     <div>
-                      <div className="flex-row gap-2">
+                      <div className="flex-row gap-2" style={{ alignItems: 'center' }}>
                         <strong style={{ color: 'var(--primary-color)', fontSize: '15px' }}>
                           Room {ticket.room_number || '204'}
                         </strong>
@@ -1253,16 +1302,30 @@ export function AdminDashboard({ onBack }) {
                             🚨 Urgent
                           </span>
                         )}
+                        {ticket.isEscalatedToGM && (
+                          <span style={{ fontSize: '11px', background: '#e53935', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold', animation: 'pulse 1.5s infinite' }}>
+                            ⚠️ GM ESCALATION (&gt;15 min unacknowledged)
+                          </span>
+                        )}
                       </div>
-                      <p style={{ margin: '4px 0', fontSize: '13px', color: '#fff' }}>
+                      <p style={{ margin: '6px 0 4px 0', fontSize: '13px', color: '#fff' }}>
                         &quot;{ticket.request_text}&quot;
                       </p>
                       <small style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                        Ticket ID: {ticket.id} • Created: {new Date(ticket.created_at || Date.now()).toLocaleTimeString()}
+                        Ticket: {ticket.id} • Assigned: {ticket.assigned_to || 'Duty Staff'} • Elapsed: {ticket.elapsedMinutes || 0} mins ago
                       </small>
                     </div>
 
                     <div className="flex-row gap-2">
+                      <a
+                        href={`https://wa.me/918984938388?text=${encodeURIComponent(`🛎️ Service Ticket #${ticket.id}\nRoom: ${ticket.room_number}\nDept: ${ticket.department}\nRequest: ${ticket.request_text}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-small-secondary"
+                        style={{ fontSize: '11px', padding: '4px 8px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        💬 WhatsApp Staff
+                      </a>
                       <span
                         style={{
                           fontSize: '12px',
@@ -1293,7 +1356,227 @@ export function AdminDashboard({ onBack }) {
             )}
           </div>
 
-          {/* Section 2: Dynamic Pricing & Surge Intelligence */}
+          {/* Section 2: Direct Booking Rate Parity & OTA Price Guard Monitor (Module 4) */}
+          <div className="admin-card" style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid var(--border-color)' }}>
+            <div className="flex-row justify-between mb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
+              <div>
+                <h3 className="serif" style={{ fontSize: '20px', margin: 0 }}>
+                  🛡️ Direct Booking Rate Parity &amp; OTA Price Guard
+                </h3>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
+                  Live OTA benchmark (MakeMyTrip, Agoda, Booking.com) &amp; dynamic value-injection perks
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn-small-secondary"
+                onClick={fetchOtaParity}
+                disabled={otaParityLoading}
+              >
+                {otaParityLoading ? 'Checking OTAs...' : '🔄 Scrape OTA Rates'}
+              </button>
+            </div>
+
+            {otaParityData ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
+                  {otaParityData.comparison?.map((item) => (
+                    <div
+                      key={item.roomTypeId}
+                      style={{
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '10px',
+                        padding: '14px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <strong style={{ color: 'var(--primary-color)', fontSize: '14px' }}>{item.roomType}</strong>
+                        <span style={{ fontSize: '11px', background: 'rgba(76,175,80,0.2)', color: '#4CAF50', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                          Save ₹{item.directSavings} Direct
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                        <span>🏨 Satyam Direct Rate:</span>
+                        <strong style={{ color: '#4CAF50', fontSize: '15px' }}>₹{item.directPrice}</strong>
+                      </div>
+
+                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '6px', marginBottom: '8px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                        <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>OTA Listed Public Rates:</div>
+                        {item.otas.map((ota, i) => (
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                            <span>{ota.ota}:</span>
+                            <span style={{ color: '#ffb74d' }}>₹{ota.listedPrice} (+₹{ota.diff})</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div style={{ background: 'rgba(201,168,76,0.08)', padding: '8px', borderRadius: '6px', fontSize: '11px', color: '#ddd' }}>
+                        <strong style={{ color: 'var(--primary-color)', display: 'block', marginBottom: '2px' }}>Injected Direct Perks:</strong>
+                        {item.directPerks.slice(0, 2).map((p, idx) => (
+                          <div key={idx}>• {p}</div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Loading OTA Rate Parity data...</p>
+            )}
+          </div>
+
+          {/* Section 3: Predictive No-Show & 4-Hour Auto-Release Scanner (Module 2) */}
+          <div className="admin-card" style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid var(--border-color)' }}>
+            <div className="flex-row justify-between mb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
+              <div>
+                <h3 className="serif" style={{ fontSize: '20px', margin: 0 }}>
+                  ⏱️ Predictive No-Show &amp; 4-Hour Auto-Release Scanner
+                </h3>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
+                  Monitors unverified Pay-at-Hotel reservations approaching check-in threshold to protect room inventory
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn-small-secondary"
+                onClick={fetchAutoReleaseScan}
+              >
+                🔄 Scan Unconfirmed
+              </button>
+            </div>
+
+            {autoReleaseData?.atRiskBookings ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {autoReleaseData.atRiskBookings.map((b, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      background: b.canAutoRelease ? 'rgba(255, 152, 0, 0.08)' : 'rgba(76, 175, 80, 0.08)',
+                      border: `1px solid ${b.canAutoRelease ? '#ff9800' : '#4CAF50'}`,
+                      fontSize: '13px',
+                      flexWrap: 'wrap',
+                      gap: '8px'
+                    }}
+                  >
+                    <div>
+                      <strong>Booking #{b.bookingCode}</strong> — {b.guestName} ({b.phone}) &bull; {b.roomType}
+                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                        Risk Score: {b.riskScore}% &bull; Check-in: Today &bull; Auto-Release Window: {b.hoursRemaining}h remaining
+                      </div>
+                    </div>
+
+                    <div className="flex-row gap-2">
+                      <span style={{ fontSize: '11px', background: b.canAutoRelease ? '#ff9800' : '#4CAF50', color: '#000', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold' }}>
+                        {b.canAutoRelease ? '⚠️ At Risk (Unverified)' : '✓ Deposit Verified'}
+                      </span>
+                      {b.canAutoRelease && (
+                        <a
+                          href={`https://wa.me/${b.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Namaste ${b.guestName}! Please re-confirm your booking ${b.bookingCode} at Satyam Residency within 4 hours to retain your reservation.`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-small-primary"
+                          style={{ fontSize: '11px', padding: '3px 8px', textDecoration: 'none' }}
+                        >
+                          Send WhatsApp Link
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Scanning reservations...</p>
+            )}
+          </div>
+
+          {/* Section 4: Negative Review Interception & Service Recovery (Module 6) */}
+          <div className="admin-card" style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid var(--border-color)' }}>
+            <div className="flex-row justify-between mb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
+              <div>
+                <h3 className="serif" style={{ fontSize: '20px', margin: 0 }}>
+                  🛡️ Negative Review Interception &amp; Reputation Guard
+                </h3>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
+                  1-3 Star guest ratings held internally before Google Maps / OTAs for immediate Duty Manager resolution
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn-small-secondary"
+                onClick={fetchFeedbacks}
+                disabled={feedbacksLoading}
+              >
+                {feedbacksLoading ? 'Loading...' : '🔄 Refresh Feedback'}
+              </button>
+            </div>
+
+            {guestFeedbacks.length === 0 ? (
+              <div style={{ padding: '16px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '13px' }}>
+                No intercepted negative reviews. Guest satisfaction is high! 🌟
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {guestFeedbacks.map((fb) => {
+                  const isNegative = fb.rating <= 3;
+                  return (
+                    <div
+                      key={fb.id}
+                      style={{
+                        background: isNegative ? 'rgba(229, 57, 53, 0.08)' : 'rgba(76, 175, 80, 0.08)',
+                        border: isNegative ? '1px solid #e53935' : '1px solid #4CAF50',
+                        borderRadius: '10px',
+                        padding: '12px 14px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '10px'
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <strong>{fb.guest_name}</strong>
+                          <span style={{ fontSize: '12px', color: isNegative ? '#ff6b6b' : '#81c784' }}>
+                            {'⭐'.repeat(fb.rating)} ({fb.rating}/5)
+                          </span>
+                          <span style={{ fontSize: '11px', background: isNegative ? 'rgba(229, 57, 53, 0.2)' : 'rgba(76, 175, 80, 0.2)', color: isNegative ? '#ff6b6b' : '#81c784', padding: '1px 6px', borderRadius: '4px' }}>
+                            {fb.status}
+                          </span>
+                        </div>
+                        <p style={{ margin: '4px 0', fontSize: '13px', color: '#fff' }}>
+                          &quot;{fb.comments || 'No written text'}&quot;
+                        </p>
+                        <small style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                          Booking: {fb.booking_code} &bull; Category: {fb.category} &bull; Time: {new Date(fb.created_at || Date.now()).toLocaleString()}
+                        </small>
+                      </div>
+
+                      {isNegative && (
+                        <a
+                          href={`https://wa.me/918984938388?text=${encodeURIComponent(`Duty Manager Service Recovery for Guest ${fb.guest_name} (${fb.booking_code}): "${fb.comments}"`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-small-primary"
+                          style={{ fontSize: '11px', padding: '4px 10px', textDecoration: 'none' }}
+                        >
+                          Resolve on WhatsApp
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Section 5: Dynamic Pricing & Surge Intelligence */}
           <div className="admin-card" style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid var(--border-color)' }}>
             <div className="flex-row justify-between mb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
               <div>
@@ -1321,7 +1604,6 @@ export function AdminDashboard({ onBack }) {
 
             {dynamicPricingData ? (
               <div>
-                {/* Live Occupancy Meter */}
                 <div style={{ marginBottom: '16px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px' }}>
                   <div className="flex-row justify-between mb-1" style={{ fontSize: '13px' }}>
                     <span>Current Hotel Occupancy: <strong>{dynamicPricingData.occupancyRate}%</strong></span>
@@ -1339,7 +1621,6 @@ export function AdminDashboard({ onBack }) {
                   </div>
                 </div>
 
-                {/* Dynamic Room Rates Table */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   {dynamicPricingData.roomRates?.map((r) => (
                     <div
@@ -1373,7 +1654,7 @@ export function AdminDashboard({ onBack }) {
             )}
           </div>
 
-          {/* Section 3: AI Review Responder & Reputation Management */}
+          {/* Section 6: AI Review Responder & Brand Tone Generator */}
           <div className="admin-card" style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid var(--border-color)' }}>
             <div className="flex-row justify-between mb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
               <div>
@@ -1468,7 +1749,11 @@ export function AdminDashboard({ onBack }) {
                   <button
                     type="button"
                     className="btn-small-primary"
-                    onClick={handleCopyReviewReply}
+                    onClick={() => {
+                      navigator.clipboard.writeText(generatedReviewReply);
+                      setCopiedReply(true);
+                      setTimeout(() => setCopiedReply(false), 3000);
+                    }}
                     style={{ fontSize: '11px', padding: '4px 10px' }}
                   >
                     {copiedReply ? '✓ Copied!' : '📋 Copy to Clipboard'}
